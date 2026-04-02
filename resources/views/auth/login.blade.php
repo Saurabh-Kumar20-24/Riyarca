@@ -74,24 +74,13 @@
         <p style="color:red; font-size:12px; margin-top:-10px; margin-bottom:10px;">{{ $message }}</p>
     @enderror
 
-            <label for="password">Password</label>
+            <!-- <label for="password">Password</label>
             <input type="password" id="password" name="password"
                    placeholder="••••••••" required>
              @error('password')
         <p style="color:red; font-size:12px; margin-top:-10px; margin-bottom:10px;">{{ $message }}</p>
-    @enderror
+    @enderror -->
 
-            <label for="role">Select Role</label>
-            <select id="role" name="role" required>
-                <option value="" disabled selected>-- Select Role --</option>
-                <option value="admin"   {{ old('role') == 'admin'   ? 'selected' : '' }}>Admin</option>
-                <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Manager</option>
-                <option value="user"    {{ old('role') == 'user'    ? 'selected' : '' }}>User</option>
-            </select>
-
-             @error('role')
-        <p style="color:red; font-size:12px; margin-top:-10px; margin-bottom:10px;">{{ $message }}</p>
-    @enderror
 
             <button type="submit" class="btn">Login</button>
 

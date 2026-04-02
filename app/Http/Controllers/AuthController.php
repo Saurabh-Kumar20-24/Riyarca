@@ -26,27 +26,25 @@ class AuthController extends Controller
     $request->validate([
         'email'    => 'required|email',
         'password' => 'required|min:6',
-        'role'     => 'required|string',
     ]);
 
     if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
         return back()
-            ->withInput($request->only('email', 'role'))
             ->withErrors(['email' => 'These credentials do not match our records.']);
     }
 
     $request->session()->regenerate();
 
     $user = Auth::user();
-    $user->load('role');
+    // $user->load('role');
 
     // Check if selected role matches actual role
-    if (!$user->role || $user->role->role_name !== $request->role) {
-        Auth::logout();
-        return back()
-            ->withInput($request->only('email', 'role'))
-            ->withErrors(['role' => 'Selected role does not match your account.']);
-    }
+    // if (!$user->role || $user->role->role_name !== $request->role) {
+    //     Auth::logout();
+    //     return back()
+    //         ->withInput($request->only('email', 'role'))
+    //         ->withErrors(['role' => 'Selected role does not match your account.']);
+    // }
 
     if ($user->role->role_name === 'admin')   return redirect('dashboard');
     if ($user->role->role_name === 'manager') return redirect('dashboard');

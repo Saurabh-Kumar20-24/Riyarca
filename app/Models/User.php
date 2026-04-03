@@ -25,7 +25,11 @@ class User extends Authenticatable
         'phone',
         'assigned_manager',
         'role_id',
+        'phone',
+        'assigned_manager',
         'is_active',
+        'dob',
+        'joining_date'
     ];
 
     /**
@@ -54,5 +58,15 @@ class User extends Authenticatable
      public function role()
     {
         return $this->belongsTo(Role::class, 'role_id', 'id');
+    }
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'assigned_manager', 'id');
+    }
+
+    // get employees under this manager
+    public function employees()
+    {
+        return $this->hasMany(User::class, 'assigned_manager', 'id');
     }
 }

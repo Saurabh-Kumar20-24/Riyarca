@@ -1,371 +1,224 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; background: #f0f2f5; min-height: 100vh; }
+@include('layouts.header')
 
-        /* Navbar */
-        .navbar {
-            background: #0f3460;
-            padding: 0 2rem;
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
-        }
-        .navbar .brand { color: #fff; font-size: 16px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-        .logout-btn {
-            background: rgba(255,255,255,0.12);
-            color: #fff;
-            border: none;
-            padding: 7px 20px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .logout-btn:hover { background: rgba(255,255,255,0.22); }
+{{-- ──────────────────────────────────────────────────────────────
+     DASHBOARD PAGE — resources/views/dashboard.blade.php
+     Uses: layouts/header.blade.php → layouts/sidebar.blade.php
+           layouts/footer.blade.php
+────────────────────────────────────────────────────────────────── --}}
 
-        /* Layout */
-        .layout { display: flex; margin-top: 55px; min-height: calc(100vh - 55px); }
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
 
-        /* Sidebar */
-        .sidebar {
-            width: 230px;
-            background: #fff;
-            border-right: 1px solid #e0e0e0;
-            padding: 1.2rem 0;
-            position: fixed;
-            top: 55px; left: 0; bottom: 0;
-            overflow-y: auto;
-        }
+<style>
+    /* ─── Flash Alert ─────────────────────────────────────── */
+    .flash-alert {
+        display: flex; align-items: center; gap: 10px;
+        background: #ecfdf5;
+        border: 1px solid #6ee7b7;
+        color: #065f46;
+        padding: 10px 16px;
+        border-radius: var(--radius);
+        margin-bottom: 1.25rem;
+        font-size: 13px;
+        animation: slideDown .3s ease;
+    }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
 
-        .menu-group { margin-bottom: 6px; }
-        .menu-group-title {
-            font-size: 10px;
-            font-weight: 700;
-            color: #bbb;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            padding: 10px 1.5rem 4px;
-        }
+    /* ─── Welcome Banner ──────────────────────────────────── */
+    .welcome-banner {
+        background: linear-gradient(135deg, var(--primary) 0%, #1a4a8a 100%);
+        border-radius: var(--radius);
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    .welcome-banner h2 { font-size: 18px; color: #fff; font-weight: 700; }
+    .welcome-banner p  { font-size: 13px; color: rgba(255,255,255,.65); margin-top: 3px; }
+    .role-badge {
+        background: rgba(255,255,255,.15);
+        color: #fff;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 1px solid rgba(255,255,255,.2);
+        white-space: nowrap;
+    }
 
-        .sidebar-menu { list-style: none; }
-        .sidebar-menu li a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 1.5rem;
-            font-size: 13.5px;
-            color: #444;
-            text-decoration: none;
-            transition: background .15s, color .15s;
-            border-left: 3px solid transparent;
-        }
-        .sidebar-menu li a:hover {
-            background: #f0f2f5;
-            color: #0f3460;
-            border-left-color: #0f3460;
-        }
-        .sidebar-menu li a.active {
-            background: #eef2f9;
-            color: #0f3460;
-            font-weight: 600;
-            border-left-color: #0f3460;
-        }
-        .sidebar-menu li a .icon { font-size: 15px; width: 20px; text-align: center; }
+    /* ─── Stat Cards ──────────────────────────────────────── */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    .stat-card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border: 1px solid var(--border);
+        transition: transform .2s, box-shadow .2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.09); }
+    .stat-icon {
+        width: 46px; height: 46px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; flex-shrink: 0;
+    }
+    .si-blue   { background: #eef2f9; color: #0f3460; }
+    .si-green  { background: #ecfdf5; color: #16a34a; }
+    .si-red    { background: #fef2f2; color: #dc2626; }
+    .si-purple { background: #f5f3ff; color: #7c3aed; }
+    .stat-value { font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 3px; }
 
-        /* Main */
-        .main { margin-left: 230px; padding: 2rem; flex: 1; }
+    /* ─── Content Grid ────────────────────────────────────── */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
-        /* Welcome */
-        .welcome {
-            background: #fff;
-            border-radius: 10px;
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .welcome h2 { font-size: 18px; color: #1a1a1a; }
-        .welcome p  { font-size: 13px; color: #888; margin-top: 3px; }
-        .role-badge {
-            background: #eef2f9;
-            color: #0f3460;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    /* ─── Card ────────────────────────────────────────────── */
+    .dash-card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
+    .dash-card h3 {
+        font-size: 14px; font-weight: 700; color: var(--text);
+        margin-bottom: 1rem; padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+    .dash-card.full-width { grid-column: 1 / -1; }
 
-        /* Cards */
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .card {
-            background: #fff;
-            border-radius: 10px;
-            padding: 1.2rem 1.5rem;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .card .icon-box {
-            width: 44px; height: 44px;
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; flex-shrink: 0;
-        }
-        .icon-box.blue   { background: #eef2f9; }
-        .icon-box.green  { background: #eafaf1; }
-        .icon-box.orange { background: #fff4e5; }
-        .icon-box.red    { background: #fdecea; }
-        .icon-box.purple { background: #f3eeff; }
-        .card .number { font-size: 22px; font-weight: 700; color: #1a1a1a; }
-        .card .label  { font-size: 12px; color: #888; margin-top: 2px; }
+    /* ─── Table ───────────────────────────────────────────── */
+    .dash-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .dash-table th {
+        text-align: left; padding: 8px 10px;
+        font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .5px;
+        color: var(--muted); border-bottom: 1px solid var(--border);
+    }
+    .dash-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+    .dash-table tr:last-child td { border-bottom: none; }
+    .dash-table tr:hover td { background: var(--bg); }
+    .badge-paid   { background: #ecfdf5; color: #16a34a; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-unpaid { background: #fef2f2; color: #dc2626; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
 
-        /* Content box */
-        .content-box {
-            background: #fff;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-            min-height: 300px;
-        }
-        .content-box h3 {
-            font-size: 16px; color: #1a1a1a;
-            margin-bottom: 1rem; padding-bottom: 10px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .content-box p { font-size: 14px; color: #aaa; text-align: center; margin-top: 80px; }
+    /* ─── Activity Timeline ───────────────────────────────── */
+    .timeline { list-style: none; }
+    .timeline li {
+        display: flex; gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+    }
+    .timeline li:last-child { border-bottom: none; }
+    .tl-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%; background: var(--accent);
+        flex-shrink: 0; margin-top: 5px;
+    }
+    .tl-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-        /* Section pages hidden by default */
-        .section { display: none; }
-        .section.active { display: block; }
-    </style>
-</head>
-<body>
+    /* ─── Performers List ─────────────────────────────────── */
+    .performer {
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 0; border-bottom: 1px solid var(--border);
+    }
+    .performer:last-child { border-bottom: none; }
+    .performer img, .performer .avatar-fallback {
+        width: 36px; height: 36px;
+        border-radius: 50%; object-fit: cover; flex-shrink: 0;
+    }
+    .performer .avatar-fallback {
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px; font-weight: 700; color: #fff;
+    }
+    .performer .p-meta { flex: 1; }
+    .performer .p-meta strong { font-size: 13px; display: block; }
+    .performer .p-meta small { color: var(--muted); }
+    .performer .p-time { font-size: 11px; color: var(--muted); }
 
-    <!-- Navbar -->
-    <div class="navbar">
-        <span class="brand">Riyarca</span>
-        <div style="display:flex;align-items:center;gap:14px;">
-            <!-- <span style="color:rgba(255,255,255,0.7);font-size:13px;">{{ Auth::user()->name }}</span> -->
-            <a class="logout-btn" href="#"
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-               Logout
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
-                @csrf
-            </form>
+    /* ─── Progress Bars ───────────────────────────────────── */
+    .progress-row { margin-bottom: 10px; }
+    .progress-label { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px; }
+    .progress-bar-track {
+        height: 8px; background: var(--bg);
+        border-radius: 10px; overflow: hidden;
+    }
+    .progress-bar-fill { height: 100%; border-radius: 10px; transition: width .6s ease; }
+
+    @media (max-width: 576px) {
+        .welcome-banner { flex-direction: column; align-items: flex-start; }
+        .stat-grid { grid-template-columns: 1fr 1fr; }
+    }
+</style>
+
+{{-- Flash message --}}
+@if(session('success'))
+    <div class="flash-alert">
+        <i class="bi bi-check-circle-fill"></i>
+        {{ session('success') }}
+    </div>
+@endif
+
+{{-- Welcome banner --}}
+<div class="welcome-banner">
+    <div>
+        <h2>Welcome back, {{ Auth::user()->name ?? 'User' }}!</h2>
+        <p>Here's what's happening in your workspace today.</p>
+    </div>
+    <span class="role-badge">{{ Auth::user()->role->role_name ?? 'Admin' }}</span>
+</div>
+
+{{-- Stat cards --}}
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon si-blue"><i class="bi bi-people-fill"></i></div>
+        <div>
+            <div class="stat-value">{{ $totalUsers ?? '—' }}</div>
+            <div class="stat-label">Total Users</div>
         </div>
     </div>
-
-    <div class="layout">
-
-        <!-- Sidebar -->
-        <div class="sidebar">
-
-            <div class="menu-group">
-                <div class="menu-group-title">Main</div>
-                <ul class="sidebar-menu">
-                    <li><a href="#" class="active" onclick="showSection('dashboard', this)"><span class="icon">🏠</span> Dashboard</a></li>
-                </ul>
-            </div>
-
-            <div class="menu-group">
-                <div class="menu-group-title">User Management</div>
-                <ul class="sidebar-menu">
-                    <li><a href="#" onclick="showSection('allusers', this)"><span class="icon">👥</span> All Users</a></li>
-                    <li><a href="#" onclick="showSection('adduser', this)"><span class="icon">➕</span> Add User</a></li>
-                    <li><a href="#" onclick="showSection('roles', this)"><span class="icon">🎭</span> Assign Roles</a></li>
-                </ul>
-            </div>
-
-            <div class="menu-group">
-                <div class="menu-group-title">Hierarchy</div>
-                <ul class="sidebar-menu">
-                    <li><a href="#" onclick="showSection('managerlist', this)"><span class="icon">👔</span> Manager List</a></li>
-                    <li><a href="#" onclick="showSection('employeelist', this)"><span class="icon">👤</span> Employee List</a></li>
-                </ul>
-            </div>
-
-            <div class="menu-group">
-                <div class="menu-group-title">Operations</div>
-                <ul class="sidebar-menu">
-                    <li><a href="#" onclick="showSection('eod', this)"><span class="icon">📝</span> View All EODs</a></li>
-                    <li><a href="#" onclick="showSection('leavelist', this)"><span class="icon">📋</span> Leave List</a></li>
-                    <li><a href="#" onclick="showSection('leads', this)"><span class="icon">📊</span> Leads</a></li>
-                </ul>
-            </div>
-
-            <div class="menu-group">
-                <div class="menu-group-title">Settings</div>
-                <ul class="sidebar-menu">
-                    <li><a href="#" onclick="showSection('profile', this)"><span class="icon">👤</span> Profile</a></li>
-                    <li><a href="#" onclick="showSection('systemsettings', this)"><span class="icon">⚙️</span> System Settings</a></li>
-                    <li><a href="#" onclick="showSection('resetpassword', this)"><span class="icon">🔒</span> Reset Password</a></li>
-                </ul>
-            </div>
-
-        </div>
-
-        <!-- Main Content -->
-        <div class="main">
-
-            <!-- Welcome -->
-            <div class="welcome">
-                <div>
-                    <h2>Welcome back, {{ Auth::user()->name }}!</h2>
-                    <p>Here's what's happening today.</p>
-                </div>
-                <span class="role-badge">{{ Auth::user()->role->role_name }}</span>
-            </div>
-
-            <!-- ── DASHBOARD ── -->
-            <div id="dashboard" class="section active">
-                <div class="cards">
-                    <div class="card">
-                        <div class="icon-box blue">👥</div>
-                        <div><div class="number">24</div><div class="label">Total Users</div></div>
-                    </div>
-                    <div class="card">
-                        <div class="icon-box green">👔</div>
-                        <div><div class="number">6</div><div class="label">Managers</div></div>
-                    </div>
-                    <div class="card">
-                        <div class="icon-box orange">📋</div>
-                        <div><div class="number">12</div><div class="label">Leave Requests</div></div>
-                    </div>
-                    <div class="card">
-                        <div class="icon-box red">📊</div>
-                        <div><div class="number">38</div><div class="label">Total Leads</div></div>
-                    </div>
-                    <div class="card">
-                        <div class="icon-box purple">📝</div>
-                        <div><div class="number">54</div><div class="label">EODs Today</div></div>
-                    </div>
-                </div>
-                <div class="content-box">
-                    <h3>Dashboard Overview</h3>
-                    <p>Summary statistics shown above. Select a menu item to manage.</p>
-                </div>
-            </div>
-
-            <!-- ── ALL USERS ── -->
-            <div id="allusers" class="section">
-                <div class="content-box">
-                    <h3>All Users</h3>
-                    <p>User list will appear here. Connect to your UsersController.</p>
-                </div>
-            </div>
-
-            <!-- ── ADD USER ── -->
-            <div id="adduser" class="section">
-                <div class="content-box">
-                    <h3>Add User</h3>
-                    <p>Add user form will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ── ASSIGN ROLES ── -->
-            <div id="roles" class="section">
-                <div class="content-box">
-                    <h3>Assign Roles</h3>
-                    <p>Role assignment panel will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ── MANAGER LIST ── -->
-            <div id="managerlist" class="section">
-                <div class="content-box">
-                    <h3>Manager List</h3>
-                    <p>Manager list will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ── EMPLOYEE LIST ── -->
-            <div id="employeelist" class="section">
-                <div class="content-box">
-                    <h3>Employee List</h3>
-                    <p>Employee list will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ── EOD ── -->
-            <div id="eod" class="section">
-                <div class="content-box">
-                    <h3>View All EODs</h3>
-                    <p>All EOD reports will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ── LEAVE LIST ── -->
-            <div id="leavelist" class="section">
-                <div class="content-box">
-                    <h3>Leave List</h3>
-                    <p>Leave requests will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ── LEADS ── -->
-            <div id="leads" class="section">
-                <div class="content-box">
-                    <h3>Leads</h3>
-                    <p>Leads data will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ── PROFILE ── -->
-            <div id="profile" class="section">
-                <div class="content-box">
-                    <h3>Profile</h3>
-                    <p>Profile details will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ── SYSTEM SETTINGS ── -->
-            <div id="systemsettings" class="section">
-                <div class="content-box">
-                    <h3>System Settings</h3>
-                    <p>System configuration options will appear here.</p>
-                </div>
-            </div>
-
-            <!-- ── RESET PASSWORD ── -->
-            <div id="resetpassword" class="section">
-                <div class="content-box">
-                    <h3>Reset Password</h3>
-                    <p>Password reset form will appear here.</p>
-                </div>
-            </div>
-
+    <div class="stat-card">
+        <div class="stat-icon si-green"><i class="bi bi-calendar-check"></i></div>
+        <div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Leave Requests</div>
         </div>
     </div>
+    <div class="stat-card">
+        <div class="stat-icon si-red"><i class="bi bi-diagram-3"></i></div>
+        <div>
+            <div class="stat-value">38</div>
+            <div class="stat-label">Total Leads</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon si-purple"><i class="bi bi-journal-text"></i></div>
+        <div>
+            <div class="stat-value">54</div>
+            <div class="stat-label">EODs Today</div>
+        </div>
+    </div>
+</div>
 
-    <script>
-        function showSection(section, el) {
-            document.querySelectorAll('.sidebar-menu li a').forEach(a => a.classList.remove('active'));
-            el.classList.add('active');
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(section).classList.add('active');
-        }
-    </script>
 
-</body>
-</html>
+
+@include('layouts.footer')

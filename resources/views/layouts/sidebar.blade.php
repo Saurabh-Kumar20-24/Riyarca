@@ -263,9 +263,9 @@
 
         <div class="nav-item">
             <a href="{{ route('auth.profile') }}" 
-                     class="nav-link-item {{ request()->routeIs('auth.profile') ? 'active' : '' }}">
-                      <i class="bi bi-person-circle"></i> Profile
-                          </a>
+                class="nav-link {{ request()->routeIs('auth.profile') ? 'active' : '' }}">
+                <i class="bi bi-person-circle"></i> Profile
+            </a>
         </div>
     </nav>
 

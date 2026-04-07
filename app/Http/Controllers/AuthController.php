@@ -67,46 +67,131 @@ class AuthController extends Controller
 
     public function profile()
     {
-        // Eager-load the role relationship so $user->role->name works in the view
         $user = Auth::user()->load('role');
+ 
+        // Resolve assigned manager name:
+        // assigned_manager column stores a user ID whose role_id = 2
+        if ($user->assigned_manager) {
+            $manager = User::where('id', $user->assigned_manager)
+                           ->where('role_id', 2)
+                           ->first();
+            $user->managerName = $manager ? $manager->name : '—';
+        } else {
+            $user->managerName = '—';
+        }
+ 
         return view('auth.profile', compact('user'));
     }
 
-    
-    public function update(Request $request)
+     public function update(Request $request)
     {
-        $user = Auth::user();
- 
         $request->validate([
-            'name'          => 'required|string|max:255',
-            'email'         => 'required|email|unique:users,email,' . $user->id,
-            'phone'         => 'nullable|string|max:20',
-            'password'      => 'nullable|string|min:8|confirmed',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'dob'           => ['nullable', 'date'],
+            'phone'         => ['nullable', 'string', 'max:20'],
+            'address'       => ['nullable', 'string', 'max:500'],
+            'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:3072'],
         ]);
  
-        // ── Handle profile photo upload ──
-        if ($request->hasFile('profile_photo')) {
-            // Delete old photo if exists
-            if ($user->profile_photo) {
-                Storage::disk('public')->delete($user->profile_photo);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+ 
+        // Build update data — preserve existing values if field not submitted
+        $data = [
+            'dob'     => $request->filled('dob')     ? $request->dob     : $user->dob,
+            'phone'   => $request->filled('phone')   ? $request->phone   : $user->phone,
+            'address' => $request->filled('address') ? $request->address : $user->address,
+        ];
+ 
+        // ── IMAGE UPLOAD ───────────────────────────────────────────────────
+        // Saves to:      public/storage/profile_image/filename.ext
+        // URL via:       asset('storage/profile_image/filename.ext')
+        // DB column:     profile_image  ← filename only (no path)
+        // ──────────────────────────────────────────────────────────────────
+        if ($request->hasFile('profile_image') && $request->file('profile_image')->isValid()) {
+ 
+            $file      = $request->file('profile_image');
+            $filename  = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $uploadDir = public_path('storage' . DIRECTORY_SEPARATOR . 'profile_image');
+ 
+            // Auto-create folder
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0775, true);
             }
-            $path = $request->file('profile_photo')->store('profile-photos', 'public');
-            $user->profile_photo = $path;
+ 
+            // Delete previous image
+            if ($user->profile_image) {
+                $oldFile = $uploadDir . DIRECTORY_SEPARATOR . $user->profile_image;
+                if (file_exists($oldFile)) {
+                    @unlink($oldFile);
+                }
+            }
+ 
+            // Move file into place
+            $file->move($uploadDir, $filename);
+ 
+            // ✅ Write filename into $data so it gets saved to DB
+            $data['profile_image'] = $filename;
         }
  
-        // ── Update fields ──
-        $user->name  = $request->name;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
- 
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-        }
- 
-        $user->save();
+        // ✅ Persist all changes to users table
+        $user->fill($data)->save();
  
         return redirect()->route('auth.profile')->with('success', 'Profile updated successfully.');
     }
 
+    //  public function profile()
+    // {
+    //     $user = Auth::user()->load('role');
+ 
+    //     // Resolve assigned manager name if present
+    //     if ($user->assigned_manager) {
+    //         $manager = User::find($user->assigned_manager);
+    //         $user->managerName = $manager ? $manager->name : '—';
+    //     }
+ 
+    //     return view('auth.profile', compact('user'));
+    // }
+
+    
+    // public function update(Request $request)
+    // {
+    //     $request->validate([
+    //         'dob'           => ['nullable', 'date'],
+    //         'phone'         => ['nullable', 'string', 'max:20'],
+    //         'address'       => ['nullable', 'string', 'max:500'],
+    //         'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+    //     ]);
+ 
+    //     /** @var \App\Models\User $user */
+    //     $user = Auth::user();
+ 
+    //     $data = [
+    //         'dob'     => $request->dob,
+    //         'phone'   => $request->phone,
+    //         'address' => $request->address,
+    //     ];
+ 
+    //     // Handle profile image upload
+    //     if ($request->hasFile('profile_image')) {
+    //         // Delete old image if exists
+    //         if ($user->profile_image) {
+    //             Storage::disk('public')->delete('profile_image/' . $user->profile_image);
+    //         }
+ 
+    //         $file     = $request->file('profile_image');
+    //         $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+ 
+    //         // Store in storage/app/public/profile_image/
+    //         $file->storeAs('profile_image', $filename, 'public');
+ 
+    //         $data['profile_image'] = $filename;
+    //     }
+ 
+    //     $user->update($data);
+ 
+    //     return redirect()->route('auth.profile')->with('success', 'Profile updated successfully.');
+    // }
+
+
+    
 }

@@ -17,5 +17,6 @@ Route::middleware(['auth'])->group(function () {
    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('employee', EmployeeController::class);
     Route::get('/auth/profile', [AuthController::class, 'profile'])->name('auth.profile');
-Route::put('/profile/update', [AuthController::class, 'update'])->name('profile.update');
+    Route::put('/auth/profile/update', [AuthController::class, 'update'])->name('profile.update');
+
 });

@@ -22,14 +22,15 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'phone',
-        'assigned_manager',
         'role_id',
+        'is_active',
         'phone',
         'assigned_manager',
-        'is_active',
         'dob',
-        'joining_date'
+        'joining_date',
+        'employee_id',
+        'profile_image',   // ← REQUIRED for image to save to DB
+        'address',
     ];
 
     /**

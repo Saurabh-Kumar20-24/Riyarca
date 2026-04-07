@@ -16,7 +16,7 @@ class EmployeeController extends Controller
         $authUser = Auth::user();
         $authUser->load('role');
 
-        if ($authUser->role->role_name === 'admin') {
+        if ($authUser->role_id == 1 || $authUser->role_id == 9) {
             // admin sees all users except himself (id=1)
             $employees = User::with('role', 'manager')
                              ->where('id', '!=', 1)
@@ -30,24 +30,24 @@ class EmployeeController extends Controller
                             
         }
         // search
-    if ($request->search) {
-        $employees->where(function ($q) use ($request) {
-            $q->where('name', 'like', '%' . $request->search . '%')
-              ->orWhere('email', 'like', '%' . $request->search . '%')
-              ->orWhere('phone', 'like', '%' . $request->search . '%');
-        });
-    }
-         // role filter
-    if ($request->role) {
-        $employees->where('role_id', $request->role);
-    }
+            if ($request->search) {
+                $employees->where(function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('phone', 'like', '%' . $request->search . '%');
+                });
+            }
+            // role filter
+            if ($request->role) {
+                $employees->where('role_id', $request->role);
+            }
 
-    $employees = $employees->get();
+            $employees = $employees->get();
 
-    // roles from DB
-    $roles = Role::all();
+            // roles from DB
+            $roles = Role::all();
 
-        return view('employee.index', compact('employees','roles'));
+                return view('employee.index', compact('employees','roles'));
     }
 
     // create — show add employee form

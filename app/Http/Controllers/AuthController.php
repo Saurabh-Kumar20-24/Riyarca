@@ -51,6 +51,7 @@ class AuthController extends Controller
         if ($user->role->role_name === 'admin')   return redirect('dashboard');
         if ($user->role->role_name === 'manager') return redirect('dashboard');
         if ($user->role->role_name === 'user')    return redirect('dashboard');
+        if ($user->role->role_name === 'HR')    return redirect('dashboard');
 
         Auth::logout();
         return back()->withErrors(['email' => 'Unauthorized role.']);

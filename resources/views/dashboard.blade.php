@@ -1,10 +1,10 @@
 @include('layouts.header')
 
-{{-- ──────────────────────────────────────────────────────────────
+{{-- 
      DASHBOARD PAGE — resources/views/dashboard.blade.php
      Uses: layouts/header.blade.php → layouts/sidebar.blade.php
            layouts/footer.blade.php
-────────────────────────────────────────────────────────────────── --}}
+ --}}
 
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')

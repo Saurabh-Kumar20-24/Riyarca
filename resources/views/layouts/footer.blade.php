@@ -4,9 +4,7 @@
         {{-- ── Footer (fixed to bottom, inside page-wrapper) ── --}}
         <footer class="app-footer">
             <span>&copy; {{ date('Y') }} <strong>SeoMagics</strong>. All rights reserved.</span>
-            <span class="footer-right">
-                Built with <i class="bi bi-heart-fill" style="color:var(--danger);font-size:11px;"></i> using Laravel
-            </span>
+           
         </footer>
 
     </div>

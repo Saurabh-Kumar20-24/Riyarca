@@ -207,7 +207,7 @@
                 <i class="bi bi-grid-1x2"></i> Dashboard
             </a>
         </div>
-        @if(Auth::user()->role_id === 1 || Auth::user()->role_id === 2)
+        @if(Auth::user()->role_id === 1 || Auth::user()->role_id === 2 || Auth::user()->role_id === 9)
           <div class="nav-label">Management</div>
             <div class="nav-item">
                 <a href="#userMenu" class="nav-link" data-bs-toggle="collapse" aria-expanded="false">
@@ -218,12 +218,48 @@
                     <li class="nav-item">
                         <a href="{{ route('employee.index') }}" class="nav-link {{ request()->routeIs('employee.*') ? 'active' : '' }}">All Employees</a>
                     </li>
+                    @if(Auth::user()->role_id === 1 || Auth::user()->role_id === 9)
                     <li class="nav-item">
                         <a href="{{ route('employee.create') }}" class="nav-link {{ request()->routeIs('employee.create') ? 'active' : '' }}">Add Employee</a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('role.create') }}" class="nav-link {{ request()->routeIs('role.create') ? 'active' : '' }}">Add Role</a>
+                    </li>
+                     @endif
                 </ul>
             </div>
+
+            
         @endif
+
+        @if( Auth::user()->role_id === 9)
+            <!-- <div class="nav-label">HR</div> -->
+                <div class="nav-item">
+                    <a href="#hiringMenu"
+                    class="nav-link {{ request()->routeIs('hiring.*') ? 'active' : '' }}"
+                    data-bs-toggle="collapse" aria-expanded="false">
+                        <i class="bi bi-people"></i> Hiring
+                        <i class="bi bi-chevron-right arrow"></i>
+                    </a>
+                    <ul class="sub-menu collapse {{ request()->routeIs('hiring.*') ? 'show' : '' }}"
+                        id="hiringMenu">
+                        <li class="nav-item">
+                            <a href="{{ route('hiring.accepted') }}"
+                            class="nav-link {{ request()->routeIs('hiring.accepted') ? 'active' : '' }}">
+                            <i class="bi bi-check-circle"></i>Accepted
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('hiring.rejected') }}"
+                            class="nav-link {{ request()->routeIs('hiring.rejected') ? 'active' : '' }}">
+                            <i class="bi bi-x-circle"></i>Rejected
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+         @endif
+
+        @if( Auth::user()->role_id === 2)
         <div class="nav-item">
             <a href="#leadsMenu" class="nav-link" data-bs-toggle="collapse" aria-expanded="false">
                 <i class="bi bi-diagram-3"></i> Leads
@@ -238,20 +274,56 @@
                 </li>
             </ul>
         </div>
+         @endif
 
         <div class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="{{route('leave.index')}}" class="nav-link {{ request()->routeIs('leave.*') || request()->routeIs('nfc.*') ? 'active' : '' }}">
                 <i class="bi bi-calendar-check"></i> Leave Requests
-                <span class="nav-badge">12</span>
+                <!-- <span class="nav-badge">12</span> -->
             </a>
         </div>
 
         <div class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="{{route('eod.index')}}" class="nav-link {{ request()->routeIs('eod.*') || request()->routeIs('nfc.*') ? 'active' : '' }}">
                 <i class="bi bi-journal-text"></i> EOD Reports
-                <span class="nav-badge">54</span>
+                <!-- <span class="nav-badge">54</span> -->
             </a>
         </div>
+        {{-- ✅ Replace with this --}}
+<div class="nav-item">
+    <a href="#attendenceMenu" class="nav-link {{ request()->routeIs('attendence.*') || request()->routeIs('nfc.*') ? 'active' : '' }}"
+        data-bs-toggle="collapse" aria-expanded="false">
+        <i class="bi bi-calendar2-check"></i> Attendance
+        <i class="bi bi-chevron-right arrow"></i>
+    </a>
+    <ul class="sub-menu collapse {{ request()->routeIs('attendence.*') || request()->routeIs('nfc.*') ? 'show' : '' }}"
+        id="attendenceMenu">
+
+        <li class="nav-item">
+            <a href="{{ route('attendence.index') }}"
+               class="nav-link {{ request()->routeIs('attendence.index') ? 'active' : '' }}">
+               All Employees
+            </a>
+        </li>
+
+        @if(Auth::user()->role_id === 1)
+        <li class="nav-item">
+            <a href="{{ route('nfc.scanner') }}"
+               class="nav-link {{ request()->routeIs('nfc.scanner') ? 'active' : '' }}">
+               NFC Scanner
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('nfc.write') }}"
+               class="nav-link {{ request()->routeIs('nfc.write') ? 'active' : '' }}">
+               Write NFC Card
+            </a>
+        </li>
+        @endif
+
+    </ul>
+</div>
 
         <div class="nav-label">Settings</div>
 

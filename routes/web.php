@@ -41,5 +41,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/role/store',[RoleController::class, 'store'])->name('role.store');
 
     Route::get('/auth/profile', [AuthController::class, 'profile'])->name('auth.profile');
-    Route::put('/profile/update', [AuthController::class, 'update'])->name('profile.update');
+    Route::put('/auth/profile/update', [AuthController::class, 'update'])->name('profile.update');
+
 });

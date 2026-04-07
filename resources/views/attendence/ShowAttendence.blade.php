@@ -1,5 +1,11 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
+
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
+
+@section('content')
 
 <div class="page-header">
     <h2>Attendance — {{ $employees->name }}</h2>
@@ -94,105 +100,9 @@
 <div style="margin-top:16px;">
     {{ $attendances->appends(['emp_id' => $employees->id])->links() }}
 </div>
-
-@include('layouts.footer')
-
+@endsection
 
 
 
 
-<!-- @include('layouts.header')
 
-{{-- Common Shared CSS --}}
-<link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
-
-@if(session('success'))
-    <div id="successAlert" class="alert-success-custom">{{ session('success') }}</div>
-@endif
-
-{{-- Page Header --}}
-<div class="page-header">
-    <h2>Employee List</h2>
-
-    <div class="header-actions">
-
-        {{-- Search Form --}}
-        <form method="GET" action="{{ route('attendence.index') }}" class="d-flex gap-2">
-            <input type="text"
-                   name="search"
-                   class="search-input"
-                   placeholder="Search employee..."
-                   value="{{ request('search') }}">
-            <button type="submit" class="btn-search">Search</button>
-        </form>
-
-
-    </div>
-</div>
-
-{{-- Table --}}
-<div class="table-card">
-    <table>
-        <thead>
-            <tr>
-              
-                <th>Name</th>
-                 <th>Email</th>
-               
-                <th>Check_in</th>
-                <th>Check_out</th>
-              
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($attendances as $atn)
-<tr>               
-    <td>{{ $employees->name }}</td>
-    <td>{{ $employees->email }}</td>
-    <td>{{ $atn->check_in }}</td>
-    <td>{{ $atn->check_out }}</td>
-</tr>
-@empty
-            <tr>
-                <td colspan="10" style="text-align:center; color:#aaa; padding: 2rem;">
-                    No employees found.
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
-
-
-
-<script>
-    // Auto-hide success alert
-    setTimeout(function () {
-        let alert = document.getElementById('successAlert');
-        if (alert) alert.style.display = 'none';
-    }, 3000);
-
-    // 3-dot dropdown toggle
-    function toggleMenu(btn) {
-        // Close all other open dropdowns
-        document.querySelectorAll('.action-dropdown.show').forEach(function (d) {
-            if (d !== btn.nextElementSibling) d.classList.remove('show');
-        });
-        btn.nextElementSibling.classList.toggle('show');
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('.action-menu')) {
-            document.querySelectorAll('.action-dropdown.show').forEach(function (d) {
-                d.classList.remove('show');
-            });
-        }
-    });
-
- 
-
-  
-</script>
-
-@include('layouts.footer') -->

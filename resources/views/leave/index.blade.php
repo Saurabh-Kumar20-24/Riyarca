@@ -1,6 +1,10 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'Leave')
+@section('page-title', 'Leave')
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
 
+@section('content')
 {{-- Page Header --}}
 <div class="page-header">
     <h2>Leave Requests</h2>
@@ -214,4 +218,4 @@
 .leave-status-rejected { background:rgba(239,68,68,.15);  color:#ef4444; border:1px solid rgba(239,68,68,.3); }
 </style>
 
-@include('layouts.footer')
+@endsection

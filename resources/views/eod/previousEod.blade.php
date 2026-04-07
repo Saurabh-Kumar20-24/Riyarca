@@ -1,6 +1,10 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'EodPrevious')
+@section('page-title', 'EodPrevious')
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
 
+@section('content')
 {{-- Page Header --}}
 <div class="page-header">
     <h2>EOD Reports — {{ $employee->name }}</h2>
@@ -278,4 +282,4 @@
 }
 </style>
 
-@include('layouts.footer')
+@endsection

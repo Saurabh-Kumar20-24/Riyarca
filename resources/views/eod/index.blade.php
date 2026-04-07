@@ -1,6 +1,10 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'Eod')
+@section('page-title', 'Eod')
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
 
+@section('content')
 {{-- Page Header --}}
 <div class="page-header">
     <h2>EOD Reports</h2>
@@ -304,4 +308,4 @@
     }
 </script>
 
-@include('layouts.footer')
+@endsection

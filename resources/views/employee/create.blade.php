@@ -1,10 +1,14 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'Create_Employee')
+@section('page-title', 'Create_Employee')
 
 {{-- Flatpickr CSS --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 {{-- Common Shared CSS --}}
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
+@section('content')
 
 <div class="col-md-12">
     <div class="form-card">
@@ -140,5 +144,4 @@
         allowInput: true
     });
 </script>
-
-@include('layouts.footer')
+@endsection

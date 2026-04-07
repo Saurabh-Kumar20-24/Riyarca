@@ -1,7 +1,12 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'Employee')
+@section('page-title', 'Employee')
 
 {{-- Common Shared CSS --}}
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
+
+@section('content')
 
 @if(session('success'))
     <div id="successAlert" class="alert-success-custom">{{ session('success') }}</div>
@@ -174,4 +179,4 @@
     });
 </script>
 
-@include('layouts.footer')
+@endsection

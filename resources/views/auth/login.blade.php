@@ -120,6 +120,17 @@
 <div class="card">
     <h2>Login to Riyarca</h2>
     <p class="sub">Sign in to your account</p>
+
+    @if(session('success'))
+    <div style="background:#d1fae5; color:#065f46; padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:1rem;">
+        {{ session('success') }}
+    </div>
+@endif
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
  
     <form method="POST" action="{{ route('login') }}">
         @csrf
@@ -166,7 +177,7 @@
  
         {{-- Forgot Password --}}
         <div class="forgot-row">
-            <a href="#">Forgot password?</a>
+            <a href="{{ route('email_verify') }}">Forgot password?</a>
         </div>
  
         <button type="submit" class="btn">Login</button>

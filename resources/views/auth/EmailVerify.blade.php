@@ -103,7 +103,7 @@ function verifyOtp() {
         document.getElementById('message').innerHTML = data.message;
 
         if(data.status === true) {
-            window.location.href = "{{ route('forget_password') }}";
+            window.location.href = "{{ route('forgot_password') }}";
         }
     });
 }

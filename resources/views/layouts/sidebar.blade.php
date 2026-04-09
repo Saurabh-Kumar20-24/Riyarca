@@ -116,6 +116,14 @@
             </a>
         </div>
 
+        {{-- ── Reset Password ── --}}
+        <div class="nav-item">
+            <a href="{{ route('reset_password') }}"
+              
+                class="nav-link {{ request()->routeIs('reset_password') ? 'active' : '' }}">
+                <i class="bi bi-shield-lock"></i> Reset Password
+            </a>
+        </div>      
     </nav>
     {{-- ── End Navigation ── --}}
 

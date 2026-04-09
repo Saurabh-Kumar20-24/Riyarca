@@ -5,7 +5,7 @@
         &nbsp;– Where Every Lead Matters. All rights reserved.
     </span>
 
-    <span class="footer-right">
+    <!-- <span class="footer-right">
         Built with <i class="bi bi-heart-fill"></i> using Laravel
-    </span>
+    </span> -->
 </footer>

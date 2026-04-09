@@ -1,16 +1,19 @@
-@include('layouts.header')
-<link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
+@extends('layouts.header')
+
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
+
+@section('content')
 
 <div class="page-header">
-    <h2>✅ Accepted Candidates</h2>
+    <h2>Accepted Candidates</h2>
     <div class="header-actions">
         <form method="GET" action="{{ route('hiring.accepted') }}" class="d-flex gap-2">
             <input type="text" name="search" class="search-input"
                    placeholder="Search name..."
                    value="{{ request('search') }}">
             <button type="submit" class="btn-search">Search</button>
-            <a href="{{ route('hiring.accepted') }}"
-               class="btn-search" style="background:#475569;">Reset</a>
+            <a href="{{ route('hiring.accepted') }}" class="btn-search btn-search-reset">Reset</a>
         </form>
     </div>
 </div>
@@ -24,22 +27,20 @@
                 <th>Name</th>
                 <th>Progress</th>
                 <th>Resume</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @forelse($jobSeekers as $i => $seeker)
             <tr>
+
                 {{-- S.No --}}
-                <td>
-                    {{ $jobSeekers->firstItem() + $i }}
-                </td>
+                <td>{{ $jobSeekers->firstItem() + $i }}</td>
 
                 {{-- Name + Position --}}
                 <td>
-                    <div>
-                        {{ $seeker->name }}
-                    </div>
-                    <div>
+                    <div>{{ $seeker->name }}</div>
+                    <div class="table-sub-text">
                         {{ $seeker->position->title ?? '-' }}
                         @if($seeker->position->department ?? false)
                             &bull; {{ $seeker->position->department }}
@@ -48,12 +49,12 @@
                 </td>
 
                 {{-- Progress --}}
-                <td style="min-width:280px;">
+                <td class="td-progress">
                     @php
-                        $stages = ['applied', 'screening', 'interview', 'decision'];
+                        $stages       = ['applied', 'screening', 'interview', 'decision'];
                         $currentStage = $seeker->stage ?? 'applied';
                         $currentIndex = array_search($currentStage, $stages);
-                        $labels = ['Applied', 'Screening', 'Interview', 'Decision'];
+                        $labels       = ['Applied', 'Screening', 'Interview', 'Decision'];
                     @endphp
 
                     <div class="progress-stages">
@@ -62,27 +63,22 @@
                                 $isDone   = $idx < $currentIndex;
                                 $isActive = $idx === $currentIndex;
                             @endphp
+
                             <div class="stage-item">
-                                {{-- Dot --}}
-                                <div class="stage-dot
-                                    {{ $isDone   ? 'stage-done'   : '' }}
-                                    {{ $isActive ? 'stage-active' : '' }}">
+                                <div class="stage-dot {{ $isDone ? 'stage-done' : '' }} {{ $isActive ? 'stage-active' : '' }}">
                                     @if($isDone)
-                                        <i class="bi bi-check" style="font-size:10px;"></i>
+                                        <i class="bi bi-check"></i>
                                     @endif
                                 </div>
-                                {{-- Label --}}
-                                <div class="stage-label
-                                    {{ $isDone   ? 'label-done'   : '' }}
-                                    {{ $isActive ? 'label-active' : '' }}">
+                                <div class="stage-label {{ $isDone ? 'label-done' : '' }} {{ $isActive ? 'label-active' : '' }}">
                                     {{ $labels[$idx] }}
                                 </div>
                             </div>
 
-                            {{-- Connector line between dots --}}
                             @if(!$loop->last)
                                 <div class="stage-line {{ $isDone ? 'line-done' : '' }}"></div>
                             @endif
+
                         @endforeach
                     </div>
                 </td>
@@ -90,112 +86,59 @@
                 {{-- Resume --}}
                 <td>
                     @if($seeker->resume_path)
-                        <a href="{{ asset('' . $seeker->resume_path) }}"
-                           target="_blank" class="resume-btn">
+                        <a href="{{ asset($seeker->resume_path) }}" target="_blank" class="resume-btn">
                             <i class="bi bi-file-earmark-text"></i> View
                         </a>
                     @else
                         <span>—</span>
                     @endif
                 </td>
+
+                {{-- Action --}}
+                <td>
+                    <div class="action-menu">
+                        <button class="action-toggle" onclick="toggleMenu({{ $seeker->id }})">⋯</button>
+
+                        <div class="action-dropdown" id="menu-{{ $seeker->id }}">
+                            <form method="POST" action="{{ route('hiring.updateStage', $seeker->id) }}">
+                                @csrf
+                                @method('PATCH')
+                                <button name="stage" value="applied"    class="dropdown-item">Applied</button>
+                                <button name="stage" value="screening"  class="dropdown-item">Screening</button>
+                                <button name="stage" value="interview"  class="dropdown-item">Interview</button>
+                                <button name="stage" value="decision"   class="dropdown-item">Decision</button>
+                            </form>
+                        </div>
+                    </div>
+                </td>
+
             </tr>
             @empty
             <tr>
-                <td>
-                    No accepted candidates found.
-                </td>
+                <td colspan="5" class="table-empty">No accepted candidates found.</td>
             </tr>
             @endforelse
         </tbody>
     </table>
 </div>
 
-<div style="margin-top:20px;">{{ $jobSeekers->links() }}</div>
+<div class="pagination-wrap">{{ $jobSeekers->links() }}</div>
 
-<style>
-/* ── Progress Stages ─────────────────────────────── */
-.progress-stages {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    padding: 6px 0;
-}
+@endsection
 
-/* Connector line */
-.stage-line {
-    flex: 1;
-    height: 2px;
-    background: rgba(255,255,255,.1);
-    transition: background .3s;
-}
-.stage-line.line-done {
-    background: #10b981;
-}
+@push('scripts')
+<script>
+    function toggleMenu(id) {
+        document.querySelectorAll('.action-dropdown').forEach(d => {
+            if (d.id !== 'menu-' + id) d.classList.remove('show');
+        });
+        document.getElementById('menu-' + id).classList.toggle('show');
+    }
 
-/* Stage item */
-.stage-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-/* Dot */
-.stage-dot {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.08);
-    border: 2px solid rgba(255,255,255,.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: #fff;
-    transition: all .3s;
-    flex-shrink: 0;
-}
-.stage-dot.stage-done {
-    background: #10b981;
-    border-color: #10b981;
-    color: #fff;
-}
-.stage-dot.stage-active {
-    background: rgba(59,130,246,.3);
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,.15);
-}
-
-/* Label */
-.stage-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .3px;
-    color: rgba(255,255,255,.25);
-    white-space: nowrap;
-}
-.stage-label.label-done   { color: #10b981; }
-.stage-label.label-active { color: #60a5fa; }
-
-/* ── Resume Button ───────────────────────────────── */
-.resume-btn {
-    background: rgba(59,130,246,.15);
-    color: #60a5fa;
-    border: 1px solid rgba(59,130,246,.3);
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: background .2s;
-}
-.resume-btn:hover {
-    background: rgba(59,130,246,.3);
-    color: #fff;
-}
-</style>
-
-@include('layouts.footer')
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.action-menu')) {
+            document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('show'));
+        }
+    });
+</script>
+@endpush

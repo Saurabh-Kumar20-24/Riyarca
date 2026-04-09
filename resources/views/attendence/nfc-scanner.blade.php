@@ -1,6 +1,10 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
+@section('content')
 <div style="max-width:420px; margin:40px auto;
     background:rgba(255,255,255,.03);
     border-radius:24px; padding:40px 32px; text-align:center;
@@ -195,4 +199,4 @@ function showError(message) {
 }
 </script>
 
-@include('layouts.footer')
+@endsection

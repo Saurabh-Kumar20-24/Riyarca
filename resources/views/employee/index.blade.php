@@ -111,6 +111,7 @@
         </tbody>
     </table>
 </div>
+    {{ $employees->links() }}
 
 {{-- Delete Confirmation Modal --}}
 <div class="modal-overlay" id="deleteModal">

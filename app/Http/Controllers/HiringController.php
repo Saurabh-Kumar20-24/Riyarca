@@ -43,4 +43,47 @@ class HiringController extends Controller
 
         return view('hiring.rejected', compact('jobSeekers'));
     }
+
+    public function newApplication(Request $request){
+
+         $query = JobSeeker::with('position')
+        ->where('status', 'pending'); // latest pending applications
+
+        // search
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // date filter
+        if ($request->filled('from') && $request->filled('to')) {
+            $query->whereBetween('applied_date', [$request->from, $request->to]);
+        }
+
+        // latest first
+        $jobSeekers = $query->orderBy('applied_date', 'desc')->paginate(10);
+
+        return view('hiring.newApplication', compact('jobSeekers'));
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $job = JobSeeker::findOrFail($id);
+        $job->status = $request->status;
+        $job->save();
+
+        return back()->with('success', 'Status updated successfully');
+    }
+
+    public function updateStage(Request $request, $id)
+    {
+        $request->validate([
+            'stage' => 'required|in:applied,screening,interview,decision'
+        ]);
+
+        $job = JobSeeker::findOrFail($id);
+        $job->stage = $request->stage;
+        $job->save();
+
+        return back()->with('success', 'Stage updated successfully');
+    }
 }

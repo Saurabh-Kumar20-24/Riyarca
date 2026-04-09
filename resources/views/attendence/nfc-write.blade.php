@@ -1,4 +1,9 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
+
+@section('content')
 
 <div style="max-width:480px; margin:60px auto;
     background:var(--primary);
@@ -196,4 +201,4 @@ function setStep(n) {
 }
 </script>
 
-@include('layouts.footer')
+@endsection

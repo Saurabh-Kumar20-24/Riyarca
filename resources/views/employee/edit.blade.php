@@ -1,4 +1,7 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
 
 {{-- Flatpickr CSS --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -10,6 +13,7 @@
     <div class="alert-success-custom">{{ session('success') }}</div>
 @endif
 
+@section('content')
 <div class="col-md-12">
     <div class="form-card">
         <h3>✏️ Edit Employee — {{ $employee->name }}</h3>
@@ -152,4 +156,4 @@
     });
 </script>
 
-@include('layouts.footer')
+@endsection

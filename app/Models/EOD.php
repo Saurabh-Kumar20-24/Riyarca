@@ -9,7 +9,7 @@ class EOD extends Model
     protected $table = 'eod_reports'; // ← tell Laravel exact table name
 
     protected $fillable = [
-        'user_Id',
+        'user_id',
         'report_date',
         'tasks_completed',
         'created_at',

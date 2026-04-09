@@ -44,10 +44,10 @@
             <span class="topbar-title">@yield('page-title', 'Dashboard')</span>
 
             {{-- Search Box --}}
-            <div class="topbar-search">
+            <!-- <div class="topbar-search">
                 <i class="bi bi-search"></i>
                 <input type="text" placeholder="Search…" aria-label="Search">
-            </div>
+            </div> -->
 
             {{-- Action Buttons --}}
             <div class="topbar-actions">
@@ -59,9 +59,9 @@
                 </div>
 
                 {{-- Messages --}}
-                <div class="icon-btn" title="Messages">
+                <!-- <div class="icon-btn" title="Messages">
                     <i class="bi bi-envelope"></i>
-                </div>
+                </div> -->
 
                 {{-- User Avatar --}}
                 <div class="avatar-btn" title="{{ Auth::user()->name ?? 'User' }}">

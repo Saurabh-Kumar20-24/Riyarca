@@ -42,7 +42,7 @@ class EmployeeController extends Controller
                 $employees->where('role_id', $request->role);
             }
 
-            $employees = $employees->get();
+            $employees = $employees->paginate(10)->withQueryString();
 
             // roles from DB
             $roles = Role::all();

@@ -1,6 +1,10 @@
-@include('layouts.header')
+@extends('layouts.header')
+
+@section('title', 'Dashboard')
+@section('page-title', 'Dashboard')
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
 
+@section('content')
 <div class="page-header">
     <h2>Rejected Candidates</h2>
     <div class="header-actions">
@@ -18,7 +22,7 @@
 </div>
 
 {{-- Summary --}}
-<div class="hiring-summary">
+<!-- <div class="hiring-summary">
     <div class="hiring-stat-card" style="border-color:rgba(239,68,68,.3);">
         <div class="hiring-stat-icon" style="background:rgba(239,68,68,.15); color:#ef4444;">
             <i class="bi bi-person-x"></i>
@@ -30,7 +34,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 {{-- Table --}}
 <div class="table-card">
@@ -119,5 +123,4 @@
     font-size: 24px; font-weight: 800; line-height: 1;
 }
 </style>
-
-@include('layouts.footer')
+@endsection

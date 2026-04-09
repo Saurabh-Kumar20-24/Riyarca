@@ -70,7 +70,15 @@ class EodController extends Controller
      */
     public function create()
     {
-        //
+         // Only logged in user can create EOD
+        $authUser = Auth::user();
+
+        // Check if already submitted today
+        $alreadySubmitted = EOD::where('user_id', $authUser->id)
+                            ->whereDate('report_date', today())
+                            ->exists();
+
+        return view('eod.create', compact('authUser', 'alreadySubmitted'));
     }
 
     /**
@@ -78,7 +86,31 @@ class EodController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $authUser = Auth::user();
+
+        //  Validate 
+        $request->validate([
+            'tasks_completed'   => 'required|array|min:1',
+            'tasks_completed.*' => 'required|string|max:500',
+        ]);
+
+        // Block if already submitted today 
+        $alreadySubmitted = EOD::where('user_id', $authUser->id)
+                            ->whereDate('report_date', today())
+                            ->exists();
+
+        if ($alreadySubmitted) {
+            return redirect()->back()->with('error', 'You have already submitted your EOD report for today.');
+        }
+
+        // Store EOD 
+        EOD::create([
+            'user_id'         => $authUser->id,
+            'report_date'     => today(),
+            'tasks_completed' => $request->tasks_completed,
+        ]);
+
+        return redirect()->route('eod.index')->with('success', 'EOD report submitted successfully.');
     }
 
     /**

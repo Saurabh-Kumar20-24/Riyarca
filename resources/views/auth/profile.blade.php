@@ -510,7 +510,7 @@
             </button>
             <button type="button"
                     id="dlBtn"
-                    class="ca-btn ca-btn-outline "
+                    class="ca-btn ca-btn-outline {{ $user->profile_image ? '' : 'disabled' }}"
                     onclick="downloadCard()">
                 <i class="bi bi-download"></i> Download
             </button>

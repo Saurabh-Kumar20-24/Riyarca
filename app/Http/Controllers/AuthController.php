@@ -6,8 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User; 
 use App\Models\Role;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Hash;        
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpMail;
 
 class AuthController extends Controller
 {
@@ -84,7 +88,7 @@ class AuthController extends Controller
         return view('auth.profile', compact('user'));
     }
 
-     public function update(Request $request)
+    public function update(Request $request)
     {
         $request->validate([
             'dob'           => ['nullable', 'date'],
@@ -93,33 +97,24 @@ class AuthController extends Controller
             'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:3072'],
         ]);
  
-        /** @var \App\Models\User $user */
         $user = Auth::user();
  
-        // Build update data — preserve existing values if field not submitted
         $data = [
             'dob'     => $request->filled('dob')     ? $request->dob     : $user->dob,
             'phone'   => $request->filled('phone')   ? $request->phone   : $user->phone,
             'address' => $request->filled('address') ? $request->address : $user->address,
         ];
  
-        // ── IMAGE UPLOAD ───────────────────────────────────────────────────
-        // Saves to:      public/storage/profile_image/filename.ext
-        // URL via:       asset('storage/profile_image/filename.ext')
-        // DB column:     profile_image  ← filename only (no path)
-        // ──────────────────────────────────────────────────────────────────
         if ($request->hasFile('profile_image') && $request->file('profile_image')->isValid()) {
  
             $file      = $request->file('profile_image');
             $filename  = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $uploadDir = public_path('storage' . DIRECTORY_SEPARATOR . 'profile_image');
  
-            // Auto-create folder
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0775, true);
             }
  
-            // Delete previous image
             if ($user->profile_image) {
                 $oldFile = $uploadDir . DIRECTORY_SEPARATOR . $user->profile_image;
                 if (file_exists($oldFile)) {
@@ -130,69 +125,179 @@ class AuthController extends Controller
             // Move file into place
             $file->move($uploadDir, $filename);
  
-            // ✅ Write filename into $data so it gets saved to DB
             $data['profile_image'] = $filename;
         }
  
-        // ✅ Persist all changes to users table
         $user->fill($data)->save();
  
         return redirect()->route('auth.profile')->with('success', 'Profile updated successfully.');
     }
+    public function showResetPasswordForm()
+    {
+        return view('auth.reset_password');
+    }
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:6|confirmed',
+        ]);
 
-    //  public function profile()
-    // {
-    //     $user = Auth::user()->load('role');
- 
-    //     // Resolve assigned manager name if present
-    //     if ($user->assigned_manager) {
-    //         $manager = User::find($user->assigned_manager);
-    //         $user->managerName = $manager ? $manager->name : '—';
-    //     }
- 
-    //     return view('auth.profile', compact('user'));
-    // }
-
-    
-    // public function update(Request $request)
-    // {
-    //     $request->validate([
-    //         'dob'           => ['nullable', 'date'],
-    //         'phone'         => ['nullable', 'string', 'max:20'],
-    //         'address'       => ['nullable', 'string', 'max:500'],
-    //         'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-    //     ]);
- 
-    //     /** @var \App\Models\User $user */
-    //     $user = Auth::user();
- 
-    //     $data = [
-    //         'dob'     => $request->dob,
-    //         'phone'   => $request->phone,
-    //         'address' => $request->address,
-    //     ];
- 
-    //     // Handle profile image upload
-    //     if ($request->hasFile('profile_image')) {
-    //         // Delete old image if exists
-    //         if ($user->profile_image) {
-    //             Storage::disk('public')->delete('profile_image/' . $user->profile_image);
-    //         }
- 
-    //         $file     = $request->file('profile_image');
-    //         $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
- 
-    //         // Store in storage/app/public/profile_image/
-    //         $file->storeAs('profile_image', $filename, 'public');
- 
-    //         $data['profile_image'] = $filename;
-    //     }
- 
-    //     $user->update($data);
- 
-    //     return redirect()->route('auth.profile')->with('success', 'Profile updated successfully.');
-    // }
+        // Check current password
+        if (!Hash::check($request->current_password, Auth::user()->password)) {
+            return back()->withErrors([
+                'current_password' => 'Current password is incorrect'
+            ]);
+        }
 
 
-    
-}
+        // Update password
+        $user = Auth::user();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return back()->with('success', 'Password updated successfully!');
+    }
+
+   public function showEmailVerificationForm()
+    {
+        return view('auth.EmailVerify'); // your blade file
+    }
+
+    // ✅ SEND OTP (AJAX)
+    public function sendOtp(Request $request)
+    {
+        // Validate
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        // Check user
+        $user = User::where('email', $request->email)->first();
+        // dd($user);
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => '<div class="error">Email not found</div>'
+            ]);
+        }
+
+        // Generate OTP
+        $otp = rand(100000, 999999);
+
+        // Store in DB (update if exists)
+        DB::table('otp_verifications')->updateOrInsert(
+            ['user_id' => $user->id],
+            [
+                'otp' => $otp,
+                'expires_at' => Carbon::now()->addMinutes(5),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
+        );
+
+      
+        Mail::to($request->email)->send(new OtpMail($otp));
+        // dd('OTP sent: ' . $otp);
+       
+        return response()->json([
+            'status' => true,
+            'message' => '<div class="success">OTP sent to your email</div>'
+        ]);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => '<div class="error">User not found</div>'
+            ]);
+        }
+
+        $otpData = DB::table('otp_verifications')
+            ->where('user_id', $user->id)
+            ->where('otp', $request->otp)
+            ->first();
+
+        // Check OTP exists
+        if (!$otpData) {
+            return response()->json([
+                'status' => false,
+                'message' => '<div class="error">Invalid OTP</div>'
+            ]);
+        }
+
+        // Check expiry (5 min)
+        if (Carbon::now()->gt($otpData->expires_at)) {
+            return response()->json([
+                'status' => false,
+                'message' => '<div class="error">OTP expired</div>'
+            ]);
+        }
+
+        // Store verified email in session
+        session(['verified_email' => $request->email]);
+
+        return response()->json([
+            'status' => true,
+            'message' => '<div class="success">OTP verified successfully</div>'
+        ]);
+    }
+
+
+
+
+
+        public function showForgotPasswordForm()
+        {
+            return view('auth.forgotpassword');
+        }
+
+        public function forgotResetPassword(Request $request)
+ {
+    // Validate
+    $request->validate([
+        'password' => 'required|min:6',
+        'confirm_password' => 'required'
+    ]);
+
+    // Match password
+    if ($request->password != $request->confirm_password) {
+        return back()->with('error', 'Password does not match');
+    }
+
+    // Get verified email from session
+    $email = session('verified_email');
+
+    if (!$email) {
+        return redirect()->route('email_verify');
+    }
+
+    User::where('email', $email)->update([
+        'password' => Hash::make($request->password)
+    ]);
+
+    // Delete OTP
+    $user = User::where('email', $email)->first();
+    if ($user) {
+        DB::table('otp_verifications')->where('user_id', $user->id)->delete();
+    }
+
+
+    session()->forget('verified_email');
+
+    // Redirect to login
+    return redirect()->route('login')->with('success', 'Password Change successfully!');
+    }
+
+
+ }

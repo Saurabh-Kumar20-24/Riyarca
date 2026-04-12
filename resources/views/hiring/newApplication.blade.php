@@ -50,8 +50,8 @@
                 <td>{{ $job->name }}</td>
                 <td>{{ $job->email }}</td>
                 <td>{{ $job->phone }}</td>
-                <td>{{ $job->position->name ?? '-' }}</td>
-                <td>{{ $job->experience ?? '-' }}</td>
+                <td>{{ $job->position->title ?? '-' }}</td>
+                <td>{{ $job->position->experiences ?? '-' }}</td>
                 <td>{{ \Carbon\Carbon::parse($job->applied_date)->format('d M Y') }}</td>
 
                 <td>
@@ -171,7 +171,6 @@
             document.getElementById('menu-' + id).classList.toggle('show');
         }
 
-        // close when click outside
         document.addEventListener('click', function(e){
             if(!e.target.closest('.action-menu')){
                 document.querySelectorAll('.action-dropdown').forEach(menu=>{

@@ -5,7 +5,6 @@
 
 @section('content')
 
-{{-- Page Header --}}
 <div class="page-header">
     <h2>Leave Requests</h2>
 
@@ -23,7 +22,6 @@
     </div>
 </div>
 
-{{-- Success / Error --}}
 @if(session('success'))
     <div class="alert-success-custom">{{ session('success') }}</div>
 @endif
@@ -33,7 +31,6 @@
 @endif
 
 
-{{-- Summary Cards --}}
 <div class="leave-summary">
     <div class="leave-stat-card leave-stat-green">
         <div class="leave-stat-label">Currently On Leave</div>
@@ -52,7 +49,6 @@
 </div>
 
 
-{{-- Currently On Leave --}}
 @if($onLeave->count())
     <div class="leave-section-title">Currently On Leave</div>
 
@@ -65,6 +61,7 @@
                     <th>From</th>
                     <th>To</th>
                     <th>Days</th>
+                    <th>Contact</th>
                     <th>Reason</th>
                 </tr>
             </thead>
@@ -76,6 +73,7 @@
                     <td>{{ $leave->from_date->format('d M Y') }}</td>
                     <td>{{ $leave->to_date->format('d M Y') }}</td>
                     <td>{{ $leave->total_days }}</td>
+                    <td>{{$leave->user->phone}}</td>
                     <td>{{ $leave->reason }}</td>
                 </tr>
                 @endforeach
@@ -85,7 +83,6 @@
 @endif
 
 
-{{-- All Leave Requests --}}
 <div class="leave-section-title">All Leave Requests</div>
 
 <div class="table-card">
@@ -99,6 +96,7 @@
                 <th>To</th>
                 <th>Days</th>
                 <th>Status</th>
+                <th>Contact</th>
                 <th>Reviewed By</th>
                 <th>Action</th>
             </tr>
@@ -119,9 +117,41 @@
                     </span>
                 </td>
 
+                <td>{{$leave->user->phone}}</td>
+
                 <td>{{ $leave->reviewer->name ?? '-' }}</td>
 
                 <td>
+                    @if($leave->status === 'pending')
+                        <div class="action-menu">
+                            <button class="action-toggle" onclick="toggleMenu(this)">
+                                &#8942;
+                            </button>
+                            <div class="action-dropdown">
+                                <form method="POST" action="{{ route('updateStatus', $leave->id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="approved">
+                                    <button type="submit" class="dropdown-item approve-btn">
+                                         Approve
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('updateStatus', $leave->id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="rejected">
+                                    <button type="submit" class="dropdown-item reject-btn">
+                                        Reject
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <span class="leave-action-done">—</span>
+                    @endif
+                </td>
+
+                <!-- <td>
                     @if($leave->status === 'pending')
 
                         <form method="POST" action="{{ route('updateStatus', $leave->id) }}">
@@ -141,7 +171,7 @@
                     @else
                         <span class="leave-action-done">—</span>
                     @endif
-                </td>
+                </td> -->
             </tr>
             @endforeach
         </tbody>
@@ -151,5 +181,23 @@
 <div class="pagination-wrap">
     {{ $allLeaves->links() }}
 </div>
+
+<script>
+    function toggleMenu(button) {
+        const menu = button.nextElementSibling;
+        document.querySelectorAll('.action-dropdown').forEach(el => {
+            if (el !== menu) el.style.display = 'none';
+        });
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.action-menu')) {
+            document.querySelectorAll('.action-dropdown').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+    });
+</script>
 
 @endsection

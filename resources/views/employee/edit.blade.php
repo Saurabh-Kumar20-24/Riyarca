@@ -3,10 +3,8 @@
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
 
-{{-- Flatpickr CSS --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-{{-- Common Shared CSS --}}
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
 
 @if(session('success'))
@@ -23,7 +21,6 @@
             @method('PUT')
 
             <div class="row">
-                {{-- Full Name --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Full Name</label>
@@ -34,7 +31,6 @@
                     </div>
                 </div>
 
-                {{-- Phone --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Phone</label>
@@ -45,7 +41,6 @@
                     </div>
                 </div>
 
-                {{-- Email --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Email Address</label>
@@ -56,7 +51,6 @@
                     </div>
                 </div>
 
-                {{-- Password --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">New Password</label>
@@ -67,7 +61,6 @@
                     </div>
                 </div>
 
-                {{-- Date of Birth (Flatpickr) --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Date of Birth</label>
@@ -78,7 +71,6 @@
                     </div>
                 </div>
 
-                {{-- Joining Date (Flatpickr) --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Joining Date</label>
@@ -89,7 +81,6 @@
                     </div>
                 </div>
 
-                {{-- Role --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Role</label>
@@ -106,7 +97,6 @@
                     </div>
                 </div>
 
-                {{-- Assign Manager (hide for admin role) --}}
                 @if($employee->role_id != 1)
                 <div class="col-md-4">
                     <div class="form-group">
@@ -125,7 +115,6 @@
                 </div>
                 @endif
 
-                {{-- Status --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Status</label>
@@ -137,7 +126,6 @@
                 </div>
             </div>
 
-            {{-- Form Actions --}}
             <div class="mt-4">
                 <a href="{{ route('employee.index') }}" class="btn-back">Cancel</a>
                 <button type="submit" class="btn-submit">Update Employee</button>
@@ -147,7 +135,6 @@
     </div>
 </div>
 
-{{-- Flatpickr JS --}}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     flatpickr(".flatpickr-date", {

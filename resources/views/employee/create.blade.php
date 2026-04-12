@@ -3,16 +3,14 @@
 @section('title', 'Create_Employee')
 @section('page-title', 'Create_Employee')
 
-{{-- Flatpickr CSS --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-{{-- Common Shared CSS --}}
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
 @section('content')
 
 <div class="col-md-12">
     <div class="form-card">
-        <h3>➕ Add New Employee</h3>
+        <h3>Add New Employee</h3>
 
         <form method="POST" action="{{ route('employee.store') }}">
             @csrf
@@ -38,7 +36,6 @@
                     </div>
                 </div>
 
-                {{-- Email --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Email Address</label>
@@ -48,7 +45,6 @@
                     </div>
                 </div>
 
-                {{-- Password --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Password</label>
@@ -58,7 +54,6 @@
                     </div>
                 </div>
 
-                {{-- Date of Birth (Flatpickr) --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Date of Birth</label>
@@ -68,7 +63,6 @@
                     </div>
                 </div>
 
-                {{-- Joining Date (Flatpickr) --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Joining Date</label>
@@ -78,11 +72,10 @@
                     </div>
                 </div>
 
-                {{-- Role --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Role</label>
-                        <select name="role_id" class="form-select-custom" required>
+                        <select name="role_id" id="role_id" class="form-select-custom" required>
                             <option value="" disabled selected>-- Select Role --</option>
                             @foreach($roles as $role)
                                 @if($role->role_name != 'admin')
@@ -97,8 +90,7 @@
                     </div>
                 </div>
 
-                {{-- Assign Manager --}}
-                <div class="col-md-4">
+                <div class="col-md-4" id="manager-box">
                     <div class="form-group">
                         <label class="form-label-custom">Assign Manager</label>
                         <select name="assigned_manager" class="form-select-custom">
@@ -110,11 +102,9 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('assigned_manager')<div class="error">{{ $message }}</div>@enderror
                     </div>
                 </div>
 
-                {{-- Status --}}
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Status</label>
@@ -126,7 +116,6 @@
                 </div>
             </div>
 
-            {{-- Form Actions --}}
             <div class="mt-4">
                 <a href="{{ route('employee.index') }}" class="btn-back">Cancel</a>
                 <button type="submit" class="btn-submit">Add Employee</button>
@@ -136,12 +125,31 @@
     </div>
 </div>
 
-{{-- Flatpickr JS --}}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     flatpickr(".flatpickr-date", {
         dateFormat: "Y-m-d",
         allowInput: true
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const roleSelect = document.getElementById("role_id");
+        const managerBox = document.getElementById("manager-box");
+
+        function toggleManagerField() {
+            const selectedText = roleSelect.options[roleSelect.selectedIndex].text.toLowerCase();
+
+            if (selectedText === "manager") {
+                managerBox.style.display = "none";
+            } else {
+                managerBox.style.display = "block";
+            }
+        }
+
+        toggleManagerField();
+
+        roleSelect.addEventListener("change", toggleManagerField);
     });
 </script>
 @endsection

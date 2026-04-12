@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JobPosition;
 use App\Models\JobSeeker;
 use Illuminate\Http\Request;
 
@@ -85,5 +86,42 @@ class HiringController extends Controller
         $job->save();
 
         return back()->with('success', 'Stage updated successfully');
+    }
+
+     public function applyForm()
+    {
+        $positions = JobPosition::where('status', 'open')->get();
+
+        return view('hiring.apply', compact('positions'));
+    }
+
+     public function storeApplication(Request $request)
+    {
+        $request->validate([
+            'job_position_id' => 'required',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required',
+            'resume' => 'nullable|mimes:pdf,doc,docx|max:2048'
+        ]);
+
+        $resumePath = null;
+
+        if ($request->hasFile('resume')) {
+            $resumePath = $request->file('resume')
+                ->store('resumes', 'public');
+        }
+        JobSeeker::create([
+            'job_position_id' => $request->job_position_id,
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'resume_path' => $resumePath,
+            'applied_date' => now(),
+            'status' => 'pending',
+            'stage' => 'applied'
+        ]);
+
+        return redirect()->back()->with('success', 'Application submitted successfully');
     }
 }

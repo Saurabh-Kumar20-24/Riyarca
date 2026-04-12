@@ -5,7 +5,6 @@
 
 @section('content')
 
-{{-- Page Header --}}
 <div class="page-header">
     <h2>EOD Reports — {{ $employee->name }}</h2>
     <div class="header-actions">
@@ -20,7 +19,6 @@
     </div>
 </div>
 
-{{-- Employee Info Card --}}
 <div class="emp-info-card">
     <div class="emp-info-item">
         <div class="emp-info-label">Employee</div>
@@ -48,11 +46,9 @@
     </div>
 </div>
 
-{{-- EOD Cards --}}
 @forelse($eods as $eod)
 <div class="eod-report-card">
 
-    {{-- Card Header --}}
     <div class="eod-report-header">
         <div class="eod-report-left">
             <div class="eod-date-box">
@@ -71,7 +67,6 @@
         <div class="eod-task-count">{{ count($eod->tasks_completed) }} task(s)</div>
     </div>
 
-    {{-- Tasks Table --}}
     <table class="eod-task-table">
         <thead>
             <tr>

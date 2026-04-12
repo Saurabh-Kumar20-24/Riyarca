@@ -10,20 +10,18 @@ use App\Models\Role;
 
 class EmployeeController extends Controller
 {
-    // index — list employees based on role
+   
     public function index(Request $request)
     {
         $authUser = Auth::user();
         $authUser->load('role');
 
         if ($authUser->role_id == 1 || $authUser->role_id == 9) {
-            // admin sees all users except himself (id=1)
             $employees = User::with('role', 'manager')
                              ->where('id', '!=', 1)
                              ->where('is_active', 1);
                           
         } else {
-            // manager sees only their assigned employees
             $employees = User::with('role', 'manager')
                              ->where('assigned_manager', $authUser->id)
                              ->where('is_active', 1);
@@ -50,17 +48,14 @@ class EmployeeController extends Controller
                 return view('employee.index', compact('employees','roles'));
     }
 
-    // create — show add employee form
     public function create()
 {
     $authUser = Auth::user();
     $authUser->load('role');
 
     if ($authUser->role->role_name === 'admin') {
-        // admin can create only manager + hr
         $roles = Role::whereIn('role_name', ['manager','hr'])->get();
     } else {
-        // hr / manager see all except admin
         $roles = Role::where('role_name', '!=', 'admin')->get();
     }
 
@@ -69,7 +64,6 @@ class EmployeeController extends Controller
     return view('employee.create', compact('roles', 'managers'));
 }
 
-    // store — save new employee
     public function store(Request $request)
     {
         $request->validate([
@@ -98,7 +92,6 @@ class EmployeeController extends Controller
                          ->with('success', 'Employee added successfully.');
     }
 
-    // edit — show edit form
     public function edit(string $id)
 {
     $employee = User::findOrFail($id);
@@ -117,7 +110,6 @@ class EmployeeController extends Controller
     return view('employee.edit', compact('employee', 'roles', 'managers'));
 }
 
-    // update — save changes
     public function update(Request $request, string $id)
     {
         $employee = User::findOrFail($id);
@@ -144,7 +136,6 @@ class EmployeeController extends Controller
             'joining_date' => $request->joining_date,
         ];
 
-        // update password only if provided
         if ($request->filled('password')) {
             $data['password'] = bcrypt($request->password);
         }
@@ -155,7 +146,6 @@ class EmployeeController extends Controller
                          ->with('success', 'Employee updated successfully.');
     }
 
-    // destroy — delete employee
     public function destroy(string $id)
     {
          $user = User::findOrFail($id);

@@ -54,11 +54,7 @@ class LeaveController extends Controller
         return view('leave.index', compact('onLeave', 'pending', 'upcoming', 'allLeaves'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | MY LEAVES — Logged-in employee's own requests + balance
-    |--------------------------------------------------------------------------
-    */
+   
 
     public function myLeaves()
     {
@@ -69,10 +65,8 @@ class LeaveController extends Controller
             ->latest()
             ->paginate(10);
 
-        // All leave types we track
         $leaveTypes = ['casual', 'sick', 'earned', 'optional', 'emergency', 'unpaid'];
 
-        // Fetch balances; auto-create rows if first time
         $balances = collect($leaveTypes)->mapWithKeys(function ($type) use ($userId, $year) {
             return [$type => LeaveBalance::getOrCreate($userId, $type, $year)];
         });
@@ -80,11 +74,6 @@ class LeaveController extends Controller
         return view('leave.my_leaves', compact('myLeaves', 'balances'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | STORE — Apply for leave
-    |--------------------------------------------------------------------------
-    */
 
     public function store(Request $request)
     {
@@ -97,15 +86,13 @@ class LeaveController extends Controller
 
         $days = $this->calculateDays($request->from_date, $request->to_date, $request->duration);
 
-        // Business rule validation
         $error = $this->validateLeaveRules($request, $days);
         if ($error) {
             return back()->with('error', $error)->withInput();
         }
 
-        // Check balance (skip for unpaid)
         if ($request->leave_type !== 'unpaid') {
-            $balance = LeaveBalance::getOrCreate(Auth::id(), $request->leave_type);
+            $balance = LeaveBalance::getOrCreate(Auth::id(), $request->leave_type, now()->year);
 
             if ($balance->remaining < $days) {
                 return back()
@@ -137,13 +124,11 @@ class LeaveController extends Controller
                 'status'        => 'pending',
             ]);
 
-            // Mark days as pending in balance (not deducted yet — only on approval)
             if ($request->leave_type !== 'unpaid') {
                 LeaveBalance::getOrCreate(Auth::id(), $request->leave_type)
                     ->increment('pending', $days);
             }
 
-            // Log the action
             LeaveLog::create([
                 'leave_request_id' => $leave->id,
                 'user_id'          => Auth::id(),
@@ -157,11 +142,7 @@ class LeaveController extends Controller
         return back()->with('success', 'Leave request submitted successfully.');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE STATUS — Approve or Reject
-    |--------------------------------------------------------------------------
-    */
+  
 
     public function updateStatus(Request $request, $id)
     {
@@ -185,17 +166,18 @@ class LeaveController extends Controller
 
             if ($leave->leave_type !== 'unpaid') {
 
-                $balance = LeaveBalance::getOrCreate($leave->user_id, $leave->leave_type);
+                $balance = LeaveBalance::getOrCreate(
+                    $leave->user_id,
+                    $leave->leave_type,
+                    now()->year
+                );
 
-                // Always clear the pending amount first
                 $balance->decrement('pending', $leave->total_days);
 
                 if ($request->status === 'approved') {
-                    // Deduct from remaining, add to used
                     $balance->decrement('remaining', $leave->total_days);
                     $balance->increment('used', $leave->total_days);
                 }
-                // If rejected — pending is cleared above; remaining stays untouched
             }
 
             LeaveLog::create([
@@ -214,11 +196,7 @@ class LeaveController extends Controller
         return back()->with('success', "Leave request {$label} successfully.");
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CANCEL — Employee cancels their own pending request
-    |--------------------------------------------------------------------------
-    */
+  
 
     public function cancel($id)
     {
@@ -233,9 +211,12 @@ class LeaveController extends Controller
             $leave->status = 'cancelled';
             $leave->save();
 
-            // Release the pending hold
             if ($leave->leave_type !== 'unpaid') {
-                LeaveBalance::getOrCreate($leave->user_id, $leave->leave_type)
+                LeaveBalance::getOrCreate(
+                    $leave->user_id,
+                    $leave->leave_type,
+                    now()->year
+                )
                     ->decrement('pending', $leave->total_days);
             }
 
@@ -252,16 +233,7 @@ class LeaveController extends Controller
         return back()->with('success', 'Leave request cancelled.');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PRIVATE HELPERS
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Calculate total leave days.
-     * Half-day duration always returns 0.5 regardless of date range.
-     */
+   
     private function calculateDays(string $from, string $to, ?string $duration): float
     {
         if ($duration === 'half') {
@@ -271,10 +243,7 @@ class LeaveController extends Controller
         return (float) (Carbon::parse($from)->diffInDays(Carbon::parse($to)) + 1);
     }
 
-    /**
-     * Business rule validation per leave type.
-     * Returns an error string or null if all rules pass.
-     */
+   
     private function validateLeaveRules(Request $request, float $days): ?string
     {
         $type = $request->leave_type;
@@ -303,7 +272,6 @@ class LeaveController extends Controller
         }
 
         if ($type === 'half_day') {
-            // Force duration to half so calculateDays returns 0.5
             $request->merge(['duration' => 'half']);
         }
 

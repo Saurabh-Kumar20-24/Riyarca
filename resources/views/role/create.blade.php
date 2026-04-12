@@ -9,14 +9,12 @@
     <h2>Add Role</h2>
 </div>
 
-{{-- Success Message --}}
 @if(session('success'))
     <div class="alert-success">
         <i class="bi bi-check-circle"></i> {{ session('success') }}
     </div>
 @endif
 
-{{-- Form Card --}}
 <div class="form-card" style="max-width: 480px;">
 
     <form method="POST" action="{{ route('role.store') }}">

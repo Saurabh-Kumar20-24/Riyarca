@@ -35,7 +35,6 @@ class LeaveRequest extends Model
         'total_days'  => 'float',
     ];
 
-    // ── Relationships ──────────────────────────────────────
 
     public function user()
     {

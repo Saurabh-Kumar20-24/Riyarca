@@ -21,7 +21,6 @@ class RoleController extends Controller
      */
     public function create()
     {
-        // Only admin (role_id 1) or hr (role_id 3) can access
         if (!in_array(Auth::user()->role_id, [1, 9])) {
             abort(403, 'Unauthorized');
         }
@@ -34,7 +33,6 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        // Only admin (role_id 1) or hr (role_id 3) can store
         if (!in_array(Auth::user()->role_id, [1, 9])) {
             abort(403, 'Unauthorized');
         }

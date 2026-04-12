@@ -54,7 +54,6 @@ body { font-family: Arial; background:#f5f5f5; }
     <button class="btn" onclick="sendOtp()">Verify</button>
 </div>
 
-<!-- OTP FIELD -->
 <div id="otpSection" class="hidden">
     <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
     <button class="btn" onclick="verifyOtp()">Submit OTP</button>

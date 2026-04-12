@@ -16,7 +16,6 @@ class EodController extends Controller
     {
        $authUser = Auth::user();
 
-        // Get employees based on role
         if ($authUser->role_id == 1 || $authUser->role_id == 9) {
             $employees = User::with('role')
                              ->where('id', '!=', 1)
@@ -29,13 +28,11 @@ class EodController extends Controller
 
         $employees = $employees->get();
 
-        // Attach LAST EOD to each employee
         $employees->each(function ($employee) {
             $employee->lastEod = EOD::where('user_id', $employee->id)
                                     ->orderBy('report_date', 'desc')
                                     ->first();
 
-            // Attach all EOD to each employee
             $employee->allEods = EOD::where('user_id', $employee->id)
                                 ->orderBy('report_date', 'desc')
                                 ->get();
@@ -45,7 +42,6 @@ class EodController extends Controller
         return view('eod.index', compact('employees'));
     }
 
-    // Previous — show all EODs of one employee
     public function previousEods(Request $request)
     {
 
@@ -59,7 +55,6 @@ class EodController extends Controller
         }
 
 
-        //for the filter
          $eods = $query->orderBy('report_date', 'desc')->paginate(10);
 
         return view('eod.previousEod', compact('employee', 'eods'));
@@ -70,10 +65,8 @@ class EodController extends Controller
      */
     public function create()
     {
-         // Only logged in user can create EOD
         $authUser = Auth::user();
 
-        // Check if already submitted today
         $alreadySubmitted = EOD::where('user_id', $authUser->id)
                             ->whereDate('report_date', today())
                             ->exists();
@@ -88,13 +81,11 @@ class EodController extends Controller
     {
         $authUser = Auth::user();
 
-        //  Validate 
         $request->validate([
             'tasks_completed'   => 'required|array|min:1',
             'tasks_completed.*' => 'required|string|max:500',
         ]);
 
-        // Block if already submitted today 
         $alreadySubmitted = EOD::where('user_id', $authUser->id)
                             ->whereDate('report_date', today())
                             ->exists();
@@ -103,7 +94,6 @@ class EodController extends Controller
             return redirect()->back()->with('error', 'You have already submitted your EOD report for today.');
         }
 
-        // Store EOD 
         EOD::create([
             'user_id'         => $authUser->id,
             'report_date'     => today(),

@@ -23,14 +23,13 @@ class LeaveBalance extends Model
         'remaining' => 'float',
     ];
 
-    // ── Relationships ──────────────────────────────────────
+   
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // ── Scopes ─────────────────────────────────────────────
 
     public function scopeCurrentYear($query)
     {
@@ -42,11 +41,8 @@ class LeaveBalance extends Model
         return $query->where('user_id', $userId);
     }
 
-    // ── Static helpers ─────────────────────────────────────
 
-    /**
-     * Get or create a balance row for a user + type + year.
-     */
+
     public static function getOrCreate(int $userId, string $leaveType, int $year = null): self
     {
         $year = $year ?? now()->year;
@@ -62,10 +58,7 @@ class LeaveBalance extends Model
         );
     }
 
-    /**
-     * Default annual allocation per leave type.
-     * Adjust these values to match your company policy.
-     */
+ 
     public static function defaultAllocation(string $type): float
     {
         return match($type) {
@@ -74,8 +67,8 @@ class LeaveBalance extends Model
             'earned'    => 18,
             'optional'  => 2,
             'emergency' => 3,
-            'unpaid'    => 0,   // no cap — tracked separately
-            'half_day'  => 0,   // counted in 0.5 units from casual/sick
+            'unpaid'    => 0,   
+            'half_day'  => 0,  
             default     => 0,
         };
     }

@@ -19,7 +19,6 @@ class LeaveLog extends Model
         'days' => 'float',
     ];
 
-    // ── Relationships ──────────────────────────────────────
 
     public function leaveRequest()
     {

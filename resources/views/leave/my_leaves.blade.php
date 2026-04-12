@@ -5,7 +5,6 @@
 
 @section('content')
 
-{{-- Page Header --}}
 <div class="page-header">
     <h2>My Leave Requests</h2>
     <div class="header-actions">
@@ -23,7 +22,6 @@
 @endif
 
 
-{{-- APPLY LEAVE MODAL --}}
 <div id="leaveModal" class="modal">
     <div class="modal-content">
 
@@ -35,7 +33,7 @@
             <div class="form-row">
                 <div>
                     <label>Leave Type</label>
-                    <select name="leave_type" required>
+                    <select name="leave_type" id="leave_type" required>
                         <option value="">Select</option>
                         <option value="casual">Casual</option>
                         <option value="sick">Sick</option>
@@ -47,48 +45,37 @@
                     </select>
                 </div>
 
-                <div>
-                    <label>Duration</label>
-                    <select name="duration">
-                        <option value="full">Full Day</option>
-                        <option value="half">Half Day</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div>
-                    <label>From Date</label>
-                    <input type="date" name="from_date" required>
-                </div>
-
-                <div>
-                    <label>To Date</label>
-                    <input type="date" name="to_date" required>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div>
-                    <label>Half Day Type</label>
+                
+                <div id="halfDayBox" style="display:none;">
+                    <label>Day Type</label>
                     <select name="half_day_type">
                         <option value="">Select</option>
                         <option value="first_half">First Half</option>
                         <option value="second_half">Second Half</option>
                     </select>
                 </div>
-
-                <div>
-                    <label>Contact Email</label>
-                    <input type="email" name="contact_email">
-                </div>
+           
             </div>
 
             <div class="form-row">
                 <div>
+                    <label>From Date</label>
+                    <input type="date" name="from_date" min="{{ date('Y-m-d') }}" required>
+                </div>
+
+                <div>
+                    <label>To Date</label>
+                    <input type="date" name="to_date" min="{{ date('Y-m-d') }}" required>
+                </div>
+            </div>
+
+            
+
+            <div class="form-row">
+                <!-- <div>
                     <label>Contact Phone</label>
                     <input type="text" name="contact_phone">
-                </div>
+                </div> -->
 
                 <div>
                     <label>Document</label>
@@ -116,7 +103,6 @@
 </div>
 
 
-{{-- Leave Balance Cards --}}
 <div class="leave-section-title">My Leave Balance — {{ now()->year }}</div>
 
 <div class="leave-summary" style="flex-wrap: wrap; gap: 12px; margin-bottom: 28px;">
@@ -152,19 +138,19 @@
 </div>
 
 
-{{-- My Leave Requests Table --}}
 <div class="leave-section-title">Leave History</div>
 
 <div class="table-card">
     <table>
         <thead>
             <tr>
-                <th>#</th>
+                <th>S.No.</th>
                 <th>Type</th>
                 <th>From</th>
                 <th>To</th>
                 <th>Days</th>
                 <th>Status</th>
+              
                 <th>Reviewed By</th>
                 <th>Action</th>
             </tr>
@@ -183,6 +169,8 @@
                         {{ ucfirst($leave->status) }}
                     </span>
                 </td>
+
+             
 
                 <td>{{ $leave->reviewer->name ?? '-' }}</td>
 
@@ -220,6 +208,19 @@
 
 @push('scripts')
 <script>
+        document.querySelector('input[name="from_date"]').addEventListener('change', function() {
+        document.querySelector('input[name="to_date"]').min = this.value;
+    });
+    const leaveType = document.getElementById('leave_type');
+    const halfDayBox = document.getElementById('halfDayBox');
+
+    leaveType.addEventListener('change', function() {
+        if (this.value === 'half_day') {
+            halfDayBox.style.display = 'flex';
+        } else {
+            halfDayBox.style.display = 'none';
+        }
+    });
     function openLeaveModal() {
         document.getElementById('leaveModal').style.display = 'flex';
     }
@@ -231,5 +232,6 @@
     document.getElementById('leaveModal').addEventListener('click', function(e) {
         if (e.target === this) closeLeaveModal();
     });
+
 </script>
 @endpush

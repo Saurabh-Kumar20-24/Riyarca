@@ -36,7 +36,6 @@
     </div>
 </div> -->
 
-{{-- Table --}}
 <div class="table-card">
     <table>
         <thead>
@@ -88,7 +87,6 @@
 
 <div style="margin-top:20px;">{{ $jobSeekers->links() }}</div>
 
-{{-- Shared Style --}}
 <style>
 .hiring-summary {
     display: flex;

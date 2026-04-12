@@ -261,7 +261,6 @@
 
 @section('content')
 
-    {{-- ── Flash Message ── --}}
     @if(session('success'))
         <div class="flash-alert">
             <i class="bi bi-check-circle-fill"></i>
@@ -269,7 +268,6 @@
         </div>
     @endif
 
-    {{-- ── Welcome Banner ── --}}
     <div class="welcome-banner">
         <div>
             <h2>Welcome back, {{ Auth::user()->name ?? 'User' }}! 👋</h2>
@@ -278,7 +276,6 @@
         <span class="role-badge">{{ Auth::user()->role->role_name ?? 'Admin' }}</span>
     </div>
 
-    {{-- ── Stat Cards ── --}}
     <div class="stat-grid">
         <div class="stat-card">
             <div class="stat-icon si-blue">

@@ -19,7 +19,6 @@
    
     <link rel="stylesheet" href="{{ asset('assets/css/headerfooter.css') }}">
 
-    {{-- Page-specific styles --}}
     @stack('styles')
 </head>
 <body>
@@ -32,15 +31,12 @@
     
     <div class="page-wrapper" id="pageWrapper">
 
-        {{-- ── TOPBAR ── --}}
         <header class="topbar">
 
-            {{-- Mobile sidebar toggle --}}
             <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
                 <i class="bi bi-list"></i>
             </button>
 
-            {{-- Page Title --}}
             <span class="topbar-title">@yield('page-title', 'Dashboard')</span>
 
             {{-- Search Box --}}
@@ -49,10 +45,8 @@
                 <input type="text" placeholder="Search…" aria-label="Search">
             </div> -->
 
-            {{-- Action Buttons --}}
             <div class="topbar-actions">
 
-                {{-- Notifications --}}
                 <div class="icon-btn" title="Notifications">
                     <i class="bi bi-bell"></i>
                     <span class="badge"></span>
@@ -63,7 +57,6 @@
                     <i class="bi bi-envelope"></i>
                 </div> -->
 
-                {{-- User Avatar --}}
                 <div class="avatar-btn" title="{{ Auth::user()->name ?? 'User' }}">
                     <img
                         src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=6A2FE0&color=fff"
@@ -73,18 +66,15 @@
 
             </div>
         </header>
-        {{-- ── END TOPBAR ── --}}
 
         <main class="main-content">
             @yield('content')
         </main>
-        {{-- ── END MAIN CONTENT ── --}}
 
 
         @include('layouts.footer')
 
     </div>
-    {{-- ── END PAGE WRAPPER ── --}}
 
 </div>
 

@@ -12,31 +12,50 @@ use Carbon\Carbon;
 class AttendenceController extends Controller
 {
     
+    // public function index(Request $request)
+    // {
+    //     $authUser = Auth::user();
+
+    //     $authUser->load('role');
+
+    //     if($authUser->role_id== 1 || $authUser->role_id== 9){
+    //         $employees = User::with('role','manager')->where('id','!=',1)->where('is_active',1);
+    //     }else{
+    //         $employees = User::with('role','manager')->where('assigned_manager',$authUser->id)->where('is_active',1);
+    //     }
+    //     //search
+    //         if ($request->search) {
+    //             $employees->where(function ($q) use ($request) {
+    //                 $q->where('name', 'like', '%' . $request->search . '%')
+    //                 ->orWhere('email', 'like', '%' . $request->search . '%')
+    //                 ->orWhere('phone', 'like', '%' . $request->search . '%');
+    //             });
+    //         }
+
+    //     $employees = $employees->get();
+    //     $roles = Role::all();
+    //     return view('attendence.index',compact('employees', 'roles'));
+    // }
+
     public function index(Request $request)
     {
         $authUser = Auth::user();
-
         $authUser->load('role');
 
-        if($authUser->role_id== 1 || $authUser->role_id== 9){
-            $employees = User::with('role','manager')->where('id','!=',1)->where('is_active',1);
-        }else{
-            $employees = User::with('role','manager')->where('assigned_manager',$authUser->id)->where('is_active',1);
+        if ($authUser->role_id == 1 || $authUser->role_id == 9) {
+            $employees = User::with('role', 'manager')
+                ->where('id', '!=', 1)
+                ->get();
+        } else {
+            $employees = User::with('role', 'manager')
+                ->where('assigned_manager', $authUser->id)
+                ->get();
         }
-        //search
-            if ($request->search) {
-                $employees->where(function ($q) use ($request) {
-                    $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('email', 'like', '%' . $request->search . '%')
-                    ->orWhere('phone', 'like', '%' . $request->search . '%');
-                });
-            }
 
-        $employees = $employees->get();
         $roles = Role::all();
-        return view('attendence.index',compact('employees', 'roles'));
-    }
 
+        return view('attendence.index', compact('employees', 'roles'));
+    }
 
     public function create()
     {

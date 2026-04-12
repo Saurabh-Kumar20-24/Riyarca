@@ -5,7 +5,6 @@
 
 @section('content')
 
-{{-- Page Header --}}
 <div class="page-header">
     <h2>EOD Reports</h2>
     <div class="header-actions">
@@ -18,7 +17,6 @@
     </div>
 </div>
 
-{{-- Table --}}
 <div class="table-card">
     <table>
         <thead>
@@ -90,7 +88,6 @@
     </table>
 </div>
 
-{{-- EOD Modal --}}
 <div id="eodModal" class="eod-modal-overlay" onclick="handleOverlayClick(event)">
     <div class="eod-modal-box">
 
@@ -108,7 +105,6 @@
 
 @push('scripts')
 <script>
-    /* ── 3-dot dropdown ─────────────────────────────────────── */
     function toggleMenu(btn) {
         document.querySelectorAll('.action-dropdown.show').forEach(function(d) {
             if (d !== btn.nextElementSibling) d.classList.remove('show');
@@ -123,7 +119,6 @@
         }
     });
 
-    /* ── Modal ──────────────────────────────────────────────── */
     function openEodModal(name, eod) {
         document.getElementById('eodModal').classList.add('open');
         document.getElementById('modalTitle').innerText    = name;

@@ -18,7 +18,6 @@
     </div>
 </div>
 
-{{-- Table --}}
 <div class="table-card">
     <table>
         <thead>
@@ -34,7 +33,6 @@
             @forelse($jobSeekers as $i => $seeker)
             <tr>
 
-                {{-- S.No --}}
                 <td>{{ $jobSeekers->firstItem() + $i }}</td>
 
                 {{-- Name + Position --}}
@@ -48,7 +46,6 @@
                     </div>
                 </td>
 
-                {{-- Progress --}}
                 <td class="td-progress">
                     @php
                         $stages       = ['applied', 'screening', 'interview', 'decision'];
@@ -86,7 +83,7 @@
                 {{-- Resume --}}
                 <td>
                     @if($seeker->resume_path)
-                        <a href="{{ asset($seeker->resume_path) }}" target="_blank" class="resume-btn">
+                        <a href="{{ asset('storage/' . $seeker->resume_path) }}" target="_blank" class="resume-btn">
                             <i class="bi bi-file-earmark-text"></i> View
                         </a>
                     @else

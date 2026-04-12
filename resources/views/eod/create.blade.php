@@ -8,7 +8,6 @@
 @section('content')
 <div class="main-content">
 
-    {{-- ── Page Header ─────────────────────────────────────────── --}}
     <div class="page-header">
         <h2><i class="bi bi-clipboard-check"></i> Submit EOD Report</h2>
         <a href="{{ route('eod.index') }}" class="btn-back">
@@ -16,7 +15,6 @@
         </a>
     </div>
 
-    {{-- ── Already Submitted Warning ───────────────────────────── --}}
     @if($alreadySubmitted)
         <div class="alert-danger-custom">
             <i class="bi bi-exclamation-circle-fill"></i>
@@ -24,7 +22,6 @@
         </div>
     @else
 
-    {{-- ── Success / Error Messages ────────────────────────────── --}}
     @if(session('success'))
         <div class="alert-success-custom">
             <i class="bi bi-check-circle-fill"></i>
@@ -39,7 +36,6 @@
         </div>
     @endif
 
-    {{-- ── Employee Info Card ───────────────────────────────────── --}}
     <div class="emp-info-card">
         <div>
             <div class="emp-info-label">Employee</div>
@@ -55,7 +51,6 @@
         </div>
     </div>
 
-    {{-- ── Form Card ────────────────────────────────────────────── --}}
     <div class="form-card">
         <h3>
             <i class="bi bi-list-check"></i>
@@ -65,7 +60,6 @@
         <form action="{{ route('eod.store') }}" method="POST">
             @csrf
 
-            {{-- Validation Errors --}}
             @if($errors->any())
                 <div class="alert-danger-custom">
                     <i class="bi bi-exclamation-circle-fill"></i>
@@ -77,7 +71,6 @@
                 </div>
             @endif
 
-            {{-- ── Task Fields ──────────────────────────────────── --}}
             <div id="task-list">
                 <div class="task-row">
                     <div class="task-number">1</div>
@@ -91,12 +84,10 @@
                 </div>
             </div>
 
-            {{-- ── Add Task Button ──────────────────────────────── --}}
             <button type="button" class="btn-add-task" onclick="addTask()">
                 <i class="bi bi-plus-circle"></i> Add Another Task
             </button>
 
-            {{-- ── Submit ───────────────────────────────────────── --}}
             <div class="form-footer">
                 <div class="form-actions">
                     <a href="{{ route('eod.index') }}" class="btn-back">
@@ -146,7 +137,6 @@
         if (document.querySelectorAll('.task-row').length > 1) {
             btn.closest('.task-row').remove();
 
-            // Re-number remaining tasks
             document.querySelectorAll('.task-row').forEach((row, i) => {
                 row.querySelector('.task-number').textContent = i + 1;
             });

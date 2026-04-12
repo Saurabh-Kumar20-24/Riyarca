@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EOD extends Model
 {
-    protected $table = 'eod_reports'; // ← tell Laravel exact table name
+    protected $table = 'eod_reports'; 
 
     protected $fillable = [
         'user_id',
@@ -17,7 +17,7 @@ class EOD extends Model
     ];
 
     protected $casts = [
-        'tasks_completed' => 'array',  // ← auto decode JSON
+        'tasks_completed' => 'array',  
         'report_date'     => 'date',
     ];
 

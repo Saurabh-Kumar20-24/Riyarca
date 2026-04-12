@@ -3,7 +3,6 @@
 @section('title', 'Employee')
 @section('page-title', 'Employee')
 
-{{-- Common Shared CSS --}}
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
 
 @section('content')
@@ -12,13 +11,11 @@
     <div id="successAlert" class="alert-success-custom">{{ session('success') }}</div>
 @endif
 
-{{-- Page Header --}}
 <div class="page-header">
     <h2>Employee List</h2>
 
     <div class="header-actions">
 
-        {{-- Search Form --}}
         <form method="GET" action="{{ route('employee.index') }}" class="d-flex gap-2">
             <input type="text"
                    name="search"
@@ -28,7 +25,6 @@
             <button type="submit" class="btn-search">Search</button>
         </form>
 
-        {{-- Role Filter --}}
         <form method="GET" action="{{ route('employee.index') }}">
             <select name="role" class="filter-select" onchange="this.form.submit()">
                 <option value="">All Roles</option>
@@ -50,7 +46,6 @@
     </div>
 </div>
 
-{{-- Table --}}
 <div class="table-card">
     <table>
         <thead>
@@ -84,7 +79,6 @@
                     </span>
                 </td>
                 <td>
-                    {{-- 3-Dot Action Menu --}}
                     <div class="action-menu">
                         <button class="action-toggle" onclick="toggleMenu(this)" title="Actions">
                             &#8942;
@@ -113,7 +107,6 @@
 </div>
     {{ $employees->links() }}
 
-{{-- Delete Confirmation Modal --}}
 <div class="modal-overlay" id="deleteModal">
     <div class="modal-box">
         <div class="modal-icon">🗑️</div>
@@ -131,22 +124,18 @@
 </div>
 
 <script>
-    // Auto-hide success alert
     setTimeout(function () {
         let alert = document.getElementById('successAlert');
         if (alert) alert.style.display = 'none';
     }, 3000);
 
-    // 3-dot dropdown toggle
     function toggleMenu(btn) {
-        // Close all other open dropdowns
         document.querySelectorAll('.action-dropdown.show').forEach(function (d) {
             if (d !== btn.nextElementSibling) d.classList.remove('show');
         });
         btn.nextElementSibling.classList.toggle('show');
     }
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function (e) {
         if (!e.target.closest('.action-menu')) {
             document.querySelectorAll('.action-dropdown.show').forEach(function (d) {
@@ -155,9 +144,7 @@
         }
     });
 
-    // Delete modal
     function openDeleteModal(id, name) {
-        // Close any open dropdowns
         document.querySelectorAll('.action-dropdown.show').forEach(function (d) {
             d.classList.remove('show');
         });
@@ -174,7 +161,6 @@
         document.getElementById('deleteModal').classList.remove('show');
     }
 
-    // Close modal on overlay click
     document.getElementById('deleteModal').addEventListener('click', function (e) {
         if (e.target === this) closeDeleteModal();
     });

@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User; 
+use App\Models\User;
 use App\Models\Role;
-use Illuminate\Support\Facades\Hash;        
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -15,13 +15,13 @@ use App\Mail\OtpMail;
 
 class AuthController extends Controller
 {
-    //
-     public function index()
+    
+    public function index()
     {
         return view('auth.login');
     }
 
-   // app/Http/Controllers/AuthController.php
+
 
     public function login(Request $request)
     {
@@ -42,20 +42,14 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        // $user->load('role');
-
-        // Check if selected role matches actual role
-        // if (!$user->role || $user->role->role_name !== $request->role) {
-        //     Auth::logout();
-        //     return back()
-        //         ->withInput($request->only('email', 'role'))
-        //         ->withErrors(['role' => 'Selected role does not match your account.']);
-        // }
-
+       
         if ($user->role->role_name === 'admin')   return redirect('dashboard');
         if ($user->role->role_name === 'manager') return redirect('dashboard');
         if ($user->role->role_name === 'user')    return redirect('dashboard');
         if ($user->role->role_name === 'HR')    return redirect('dashboard');
+        if ($user->role->role_name === 'developer')    return redirect('dashboard');
+        if ($user->role->role_name === 'student')    return redirect('dashboard');
+        if ($user->role->role_name === 'BDA')    return redirect('dashboard');
 
         Auth::logout();
         return back()->withErrors(['email' => 'Unauthorized role.']);
@@ -73,18 +67,16 @@ class AuthController extends Controller
     public function profile()
     {
         $user = Auth::user()->load('role');
- 
-        // Resolve assigned manager name:
-        // assigned_manager column stores a user ID whose role_id = 2
+
         if ($user->assigned_manager) {
             $manager = User::where('id', $user->assigned_manager)
-                           ->where('role_id', 2)
-                           ->first();
+                ->where('role_id', 2)
+                ->first();
             $user->managerName = $manager ? $manager->name : '—';
         } else {
             $user->managerName = '—';
         }
- 
+
         return view('auth.profile', compact('user'));
     }
 
@@ -96,40 +88,39 @@ class AuthController extends Controller
             'address'       => ['nullable', 'string', 'max:500'],
             'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:3072'],
         ]);
- 
+
         $user = Auth::user();
- 
+
         $data = [
             'dob'     => $request->filled('dob')     ? $request->dob     : $user->dob,
             'phone'   => $request->filled('phone')   ? $request->phone   : $user->phone,
             'address' => $request->filled('address') ? $request->address : $user->address,
         ];
- 
+
         if ($request->hasFile('profile_image') && $request->file('profile_image')->isValid()) {
- 
+
             $file      = $request->file('profile_image');
             $filename  = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
             $uploadDir = public_path('storage' . DIRECTORY_SEPARATOR . 'profile_image');
- 
+
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0775, true);
             }
- 
+
             if ($user->profile_image) {
                 $oldFile = $uploadDir . DIRECTORY_SEPARATOR . $user->profile_image;
                 if (file_exists($oldFile)) {
                     @unlink($oldFile);
                 }
             }
- 
-            // Move file into place
+
             $file->move($uploadDir, $filename);
- 
+
             $data['profile_image'] = $filename;
         }
- 
+
         $user->fill($data)->save();
- 
+
         return redirect()->route('auth.profile')->with('success', 'Profile updated successfully.');
     }
     public function showResetPasswordForm()
@@ -143,7 +134,6 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        // Check current password
         if (!Hash::check($request->current_password, Auth::user()->password)) {
             return back()->withErrors([
                 'current_password' => 'Current password is incorrect'
@@ -159,22 +149,21 @@ class AuthController extends Controller
         return back()->with('success', 'Password updated successfully!');
     }
 
-   public function showEmailVerificationForm()
+    public function showEmailVerificationForm()
     {
-        return view('auth.EmailVerify'); // your blade file
+        return view('auth.EmailVerify');
     }
 
-    // ✅ SEND OTP (AJAX)
     public function sendOtp(Request $request)
     {
-        // Validate
+   
         $request->validate([
             'email' => 'required|email'
         ]);
 
-        // Check user
+     
         $user = User::where('email', $request->email)->first();
-        // dd($user);
+      
 
         if (!$user) {
             return response()->json([
@@ -183,10 +172,10 @@ class AuthController extends Controller
             ]);
         }
 
-        // Generate OTP
+        
         $otp = rand(100000, 999999);
 
-        // Store in DB (update if exists)
+        
         DB::table('otp_verifications')->updateOrInsert(
             ['user_id' => $user->id],
             [
@@ -197,9 +186,8 @@ class AuthController extends Controller
             ]
         );
 
-      
+
         Mail::to($request->email)->send(new OtpMail($otp));
-        // dd('OTP sent: ' . $otp);
        
         return response()->json([
             'status' => true,
@@ -228,7 +216,7 @@ class AuthController extends Controller
             ->where('otp', $request->otp)
             ->first();
 
-        // Check OTP exists
+       
         if (!$otpData) {
             return response()->json([
                 'status' => false,
@@ -236,7 +224,7 @@ class AuthController extends Controller
             ]);
         }
 
-        // Check expiry (5 min)
+     
         if (Carbon::now()->gt($otpData->expires_at)) {
             return response()->json([
                 'status' => false,
@@ -244,7 +232,7 @@ class AuthController extends Controller
             ]);
         }
 
-        // Store verified email in session
+      
         session(['verified_email' => $request->email]);
 
         return response()->json([
@@ -257,47 +245,45 @@ class AuthController extends Controller
 
 
 
-        public function showForgotPasswordForm()
-        {
-            return view('auth.forgotpassword');
+    public function showForgotPasswordForm()
+    {
+        return view('auth.forgotpassword');
+    }
+
+    public function forgotResetPassword(Request $request)
+    {
+        // Validate
+        $request->validate([
+            'password' => 'required|min:6',
+            'confirm_password' => 'required'
+        ]);
+
+        // Match password
+        if ($request->password != $request->confirm_password) {
+            return back()->with('error', 'Password does not match');
         }
 
-        public function forgotResetPassword(Request $request)
- {
-    // Validate
-    $request->validate([
-        'password' => 'required|min:6',
-        'confirm_password' => 'required'
-    ]);
+        // Get verified email from session
+        $email = session('verified_email');
 
-    // Match password
-    if ($request->password != $request->confirm_password) {
-        return back()->with('error', 'Password does not match');
+        if (!$email) {
+            return redirect()->route('email_verify');
+        }
+
+        User::where('email', $email)->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        // Delete OTP
+        $user = User::where('email', $email)->first();
+        if ($user) {
+            DB::table('otp_verifications')->where('user_id', $user->id)->delete();
+        }
+
+
+        session()->forget('verified_email');
+
+        // Redirect to login
+        return redirect()->route('login')->with('success', 'Password Change successfully!');
     }
-
-    // Get verified email from session
-    $email = session('verified_email');
-
-    if (!$email) {
-        return redirect()->route('email_verify');
-    }
-
-    User::where('email', $email)->update([
-        'password' => Hash::make($request->password)
-    ]);
-
-    // Delete OTP
-    $user = User::where('email', $email)->first();
-    if ($user) {
-        DB::table('otp_verifications')->where('user_id', $user->id)->delete();
-    }
-
-
-    session()->forget('verified_email');
-
-    // Redirect to login
-    return redirect()->route('login')->with('success', 'Password Change successfully!');
-    }
-
-
- }
+}

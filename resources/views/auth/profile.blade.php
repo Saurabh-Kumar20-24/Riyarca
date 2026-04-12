@@ -392,10 +392,10 @@
 
 <div class="prof-page">
 
-    {{-- ══════════════ ID CARD ══════════════ --}}
+   
     <div class="id-card" id="idCard">
 
-        {{-- Purple hero stripe --}}
+     
         <div class="card-stripe">
             <div class="stripe-dot"></div>
             <div class="card-org">{{ config('app.name', 'Employee Identity Card') }}</div>
@@ -417,7 +417,6 @@
             </div>
         </div>
 
-        {{-- Card body --}}
         <div class="card-body">
             <div class="card-name">{{ $user->name }}</div>
             <div class="card-empid">
@@ -426,7 +425,7 @@
 
             <div class="card-info">
 
-                {{-- DOB ── always shown --}}
+             
                 <div class="ci-row">
                     <div class="ci-icon"><i class="bi bi-calendar-heart-fill"></i></div>
                     <div class="ci-text">
@@ -437,7 +436,7 @@
                     </div>
                 </div>
 
-                {{-- Phone ── always shown --}}
+          
                 <div class="ci-row">
                     <div class="ci-icon"><i class="bi bi-telephone-fill"></i></div>
                     <div class="ci-text">
@@ -446,7 +445,7 @@
                     </div>
                 </div>
 
-                {{-- Joining Date ── hidden for role_id = 1 --}}
+               
                 @if($user->role_id != 1)
                 <div class="ci-row">
                     <div class="ci-icon"><i class="bi bi-briefcase-fill"></i></div>
@@ -459,7 +458,7 @@
                 </div>
                 @endif
 
-                {{-- Assigned Manager ── hidden for role_id 1 & 2 --}}
+               
                 @if(!in_array($user->role_id, [1, 2]))
                 <div class="ci-row">
                     <div class="ci-icon"><i class="bi bi-person-badge-fill"></i></div>
@@ -470,7 +469,6 @@
                 </div>
                 @endif
 
-                {{-- Address ── always shown --}}
                 <div class="ci-row">
                     <div class="ci-icon"><i class="bi bi-geo-alt-fill"></i></div>
                     <div class="ci-text">
@@ -479,7 +477,6 @@
                     </div>
                 </div>
 
-                {{-- Account Status ── always shown --}}
                 <div class="ci-row">
                     <div class="ci-icon"><i class="bi bi-shield-fill-check"></i></div>
                     <div class="ci-text">
@@ -497,13 +494,11 @@
             </div>{{-- /.card-info --}}
         </div>{{-- /.card-body --}}
 
-        {{-- Barcode decoration --}}
         <div class="card-barcode">
             <div class="barcode-lines" id="barcodeLines"></div>
             <div class="barcode-num"  id="barcodeNum"></div>
         </div>
 
-        {{-- Action buttons --}}
         <div class="card-actions" id="cardActions">
             <button type="button" class="ca-btn ca-btn-primary" onclick="openModal()">
                 <i class="bi bi-pencil-square"></i> Update Profile
@@ -521,7 +516,6 @@
 </div>{{-- /.prof-page --}}
 
 
-{{-- ══════════════ UPDATE MODAL ══════════════ --}}
 <div class="modal-bg" id="updateModal" onclick="bgClose(event)">
     <div class="modal-box">
 
@@ -541,7 +535,6 @@
 
             <div class="modal-body">
 
-                {{-- Avatar picker --}}
                 <div class="modal-avatar-wrap">
                     <label class="modal-avatar-btn" for="profileImageInput" title="Click to change photo">
                         @if($user->profile_image)
@@ -563,7 +556,6 @@
                     <p class="mf-error" style="text-align:center;margin-top:-.5rem;margin-bottom:.8rem;">{{ $message }}</p>
                 @enderror
 
-                {{-- Read-only (never updated) --}}
                 <div class="mf-group">
                     <label class="mf-label">Full Name</label>
                     <input class="mf-input" type="text" value="{{ $user->name }}" readonly>
@@ -583,7 +575,6 @@
                     </div>
                 </div>
 
-                {{-- Editable fields --}}
                 <div class="mf-row">
                     <div class="mf-group">
                         <label class="mf-label">Date of Birth</label>
@@ -621,7 +612,6 @@
     </div>
 </div>
 
-{{-- Toast --}}
 <div class="toast-wrap">
     <div class="toast-msg" id="toast">
         <i class="bi bi-check-circle-fill"></i> Profile updated successfully
@@ -633,19 +623,16 @@
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-/* ── Modal ── */
 function openModal()  { document.getElementById('updateModal').classList.add('open'); }
 function closeModal() { document.getElementById('updateModal').classList.remove('open'); }
 function bgClose(e)   { if (e.target === document.getElementById('updateModal')) closeModal(); }
 
-/* ── Avatar live preview ── */
 function previewAvatar(input) {
     if (!input.files || !input.files[0]) return;
     const reader = new FileReader();
     reader.onload = function(e) {
         const src = e.target.result;
 
-        /* --- modal preview --- */
         const init = document.getElementById('modalAvInit');
         let   img  = document.getElementById('modalAvImg');
         if (init) init.style.display = 'none';
@@ -658,7 +645,6 @@ function previewAvatar(input) {
         }
         img.src = src;
 
-        /* --- card live preview --- */
         const cardInit = document.getElementById('cardAvatarInit');
         let   cardImg  = document.getElementById('cardAvatarImg');
         if (cardInit) cardInit.style.display = 'none';
@@ -672,13 +658,11 @@ function previewAvatar(input) {
         }
         cardImg.src = src;
 
-        /* enable download */
         document.getElementById('dlBtn').classList.remove('disabled');
     };
     reader.readAsDataURL(input.files[0]);
 }
 
-/* ── Barcode decoration ── */
 (function () {
     const wrap  = document.getElementById('barcodeLines');
     const numEl = document.getElementById('barcodeNum');
@@ -696,7 +680,6 @@ function previewAvatar(input) {
     numEl.textContent = code.replace(/(.{4})/g, '$1 ').trim();
 })();
 
-/* ── Download card as JPG ── */
 function downloadCard() {
     const card    = document.getElementById('idCard');
     const actions = document.getElementById('cardActions');
@@ -721,7 +704,6 @@ function downloadCard() {
     });
 }
 
-/* ── Toast ── */
 @if(session('success'))
     (function(){
         var t = document.getElementById('toast');
@@ -730,7 +712,6 @@ function downloadCard() {
     })();
 @endif
 
-/* ── Re-open modal on validation errors ── */
 @if($errors->any())
     openModal();
 @endif

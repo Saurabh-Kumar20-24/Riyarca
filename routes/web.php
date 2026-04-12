@@ -18,6 +18,7 @@ Route::get('/', function () {
 
 Route::match(['get', 'post'], '/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/auth/helpdesk', [AuthController::class, 'helpdesk'])->name('helpdesk');
 
 Route::get('/apply', [HiringController::class, 'applyForm'])->name('hiring.applyForm');
 Route::post('/apply', [HiringController::class, 'storeApplication'])->name('hiring.storeApplication');

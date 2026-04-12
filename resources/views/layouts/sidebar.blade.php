@@ -1,34 +1,21 @@
-
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
 <aside class="sidebar" id="sidebar">
-
-    
-    <div class="sidebar-brand">
-       
-        <span class="brand-name">Riy<span class="brand-accent">arca</span></span>
-    </div>
-
-   
-    <div class="sidebar-profile">
+<div class="sidebar-brand">
+       <span class="brand-name">Riy<span class="brand-accent">arca</span></span>
+</div>
+<div class="sidebar-profile">
         <img
             src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'User') }}&background=6A2FE0&color=fff"
-            alt="avatar"
-        >
+            alt="avatar">
         <div class="profile-info">
             <div class="p-name">{{ Auth::user()->name ?? 'User' }}</div>
             <div class="p-role">{{ Auth::user()->role->role_name ?? 'Admin' }}</div>
         </div>
         <div class="online-dot"></div>
     </div>
-
-    
     <nav class="sidebar-nav">
-
-        
-        <div class="nav-label">Main</div>
-
-        <div class="nav-item">
+   <div class="nav-label">Main</div>
+ <div class="nav-item">
             <a href="{{ route('dashboard') }}"
                class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="bi bi-grid-1x2"></i> Dashboard
@@ -36,12 +23,9 @@
         </div>
         <!-- @if(Auth::user()->role_id === 1 || Auth::user()->role_id === 2 || Auth::user()->role_id === 9)
           <div class="nav-label">Management</div> -->
-
-       
-        @if(Auth::user()->role_id === 1 || Auth::user()->role_id === 2 || Auth::user()->role_id === 9)
+      @if(Auth::user()->role_id === 1 || Auth::user()->role_id === 2 || Auth::user()->role_id === 9)
             <div class="nav-label">Management</div>
-
-            <div class="nav-item">
+        <div class="nav-item">
                 <a href="#userMenu"
                    class="nav-link"
                    data-bs-toggle="collapse"
@@ -68,9 +52,7 @@
                 </ul>
             </div> 
         @endif
-
         @if( Auth::user()->role_id === 9)
-            <!-- <div class="nav-label">HR</div> -->
                 <div class="nav-item">
                     <a href="#hiringMenu"
                     class="nav-link {{ request()->routeIs('hiring.*') ? 'active' : '' }}"
@@ -101,8 +83,6 @@
                     </ul>
                 </div>
         
-
-        {{-- ── Leads ── --}}
         <div class="nav-item">
             <a href="#leadsMenu"
                class="nav-link"
@@ -122,11 +102,6 @@
         </div>
          @endif
          @endif
-
-        {{-- ── Leave Requests ── --}}
-        
-
-        {{-- ── Leave Requests ── --}}
         <div class="nav-item">
             <a href="#leaveMenu"
                class="nav-link {{ request()->routeIs('leave.*') ? 'active' : '' }}"
@@ -139,15 +114,11 @@
                 <li class="nav-item">
                     <a href="{{route('index')}}" class="nav-link {{ request()->routeIs('index') ? 'active' : '' }}"><i class="bi bi-journal-text"></i>Leave Requests</a>
                 </li>
-               
                 <li class="nav-item">
                     <a href="{{route('my')}}" class="nav-link {{ request()->routeIs('my') ? 'active' : '' }}"><i class="bi bi-journal-text"></i>My leaves</a>
                 </li>
-            
             </ul>
         </div>
-
-        {{-- ── EOD Reports ── --}}
         <div class="nav-item">
             <a href="#eodMenu"
                class="nav-link {{ request()->routeIs('eod.*') ? 'active' : '' }}"
@@ -167,7 +138,6 @@
                 @endif
             </ul>
         </div>
-
         <!-- <div class="nav-item">
             <a href="{{route('eod.index')}}" class="nav-link {{ request()->routeIs('eod.*') || request()->routeIs('nfc.*') ? 'active' : '' }}">
                 <i class="bi bi-journal-text"></i> EOD Reports
@@ -189,7 +159,6 @@
                All Employees
             </a>
         </li>
-
         <!-- @if(Auth::user()->role_id === 1)
         <li class="nav-item">
             <a href="{{ route('nfc.scanner') }}"
@@ -197,7 +166,6 @@
                NFC Scanner
             </a>
         </li>
-
         <li class="nav-item">
             <a href="{{ route('nfc.write') }}"
                class="nav-link {{ request()->routeIs('nfc.write') ? 'active' : '' }}">
@@ -205,33 +173,27 @@
             </a>
         </li>
         @endif -->
-
     </ul>
 </div>
-
-        {{-- ── Settings ── --}}
         <div class="nav-label">Settings</div>
-
         <div class="nav-item">
             <a href="#" class="nav-link">
                 <i class="bi bi-gear"></i> Settings
             </a>
         </div>
-
-        {{-- ── Profile ── --}}
         <div class="nav-item">
             <a href="{{ route('auth.profile') }}"
                class="nav-link {{ request()->routeIs('auth.profile') ? 'active' : '' }}">
                 <i class="bi bi-person-circle"></i> Profile
             </a>
         </div>
-
-    </nav>
-    {{-- ── End Navigation ── --}}
-
-    {{-- ══════════════════════════════════════
-         Sign Out
-    ══════════════════════════════════════ --}}
+        <div class="nav-item">  
+            <a href="{{ route('reset_password') }}"
+               class="nav-link {{ request()->routeIs('reset_password') ? 'active' : '' }}">
+                <i class="bi bi-key"></i> Reset Password
+            </a>
+        </div>
+       </nav>
     <div class="sidebar-footer">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
@@ -241,5 +203,4 @@
             </button>
         </form>
     </div>
-
 </aside>

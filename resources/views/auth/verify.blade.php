@@ -3,10 +3,8 @@
 <head>
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Email Verify</title>
-
 <style>
 body { font-family: Arial; background:#f5f5f5; }
-
 .verify-card {
     width:400px;
     margin:80px auto;
@@ -15,7 +13,6 @@ body { font-family: Arial; background:#f5f5f5; }
     border-radius:15px;
     box-shadow:0 10px 25px rgba(0,0,0,0.1);
 }
-
 .form-control {
     width:100%;
     padding:10px;
@@ -40,34 +37,23 @@ body { font-family: Arial; background:#f5f5f5; }
 .success { color:green; margin-bottom:10px; }
 </style>
 </head>
-
 <body>
-
 <div class="verify-card">
-
 <h3>Email Verification</h3>
-
 <div id="message"></div>
-
 <div style="display:flex; gap:10px;">
     <input type="email" id="email" class="form-control" placeholder="Enter Email">
     <button class="btn" onclick="sendOtp()">Verify</button>
 </div>
-
-<!-- OTP FIELD -->
 <div id="otpSection" class="hidden">
     <input type="text" id="otp" class="form-control" placeholder="Enter OTP">
     <button class="btn" onclick="verifyOtp()">Submit OTP</button>
 </div>
-
 </div>
-
 <script>
 const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
 function sendOtp() {
     let email = document.getElementById('email').value;
-
     fetch("{{ route('send.otp') }}", {
         method: "POST",
         headers: {
@@ -79,17 +65,14 @@ function sendOtp() {
     .then(res => res.json())
     .then(data => {
         document.getElementById('message').innerHTML = data.message;
-
         if(data.status === true) {
             document.getElementById('otpSection').classList.remove('hidden');
         }
     });
 }
-
 function verifyOtp() {
     let email = document.getElementById('email').value;
     let otp = document.getElementById('otp').value;
-
     fetch("{{ route('verify.otp') }}", {
         method: "POST",
         headers: {
@@ -101,13 +84,11 @@ function verifyOtp() {
     .then(res => res.json())
     .then(data => {
         document.getElementById('message').innerHTML = data.message;
-
         if(data.status === true) {
             window.location.href = "{{ route('forget_password') }}";
         }
     });
 }
 </script>
-
 </body>
 </html>

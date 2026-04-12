@@ -16,6 +16,7 @@ Route::get('/', function () {
 
 Route::match(['get', 'post'], '/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/auth/helpdesk', [AuthController::class, 'helpdesk'])->name('helpdesk');
 
 
 Route::middleware(['auth'])->group(function () {
@@ -31,16 +32,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/eod/list',[EodController::class,'previousEods'])->name('eod.previousEods');
     Route::resource('eod',EodController::class);
-    
-    // Route::patch('leave/{id}/status', [LeaveController::class, 'updateStatus'])->name('leave.updateStatus');
-    // Route::get('/leave', [LeaveController::class, 'index'])->name('leave.index');
-
-    // Route::get('/leave', [LeaveController::class, 'index'])->name('leave.index');
-    // Route::post('/leave/store', [LeaveController::class, 'store'])->name('leave.store');
-    // Route::patch('leave/{id}/status', [LeaveController::class, 'updateStatus'])->name('leave.updateStatus');
-    // Route::get('/my-leaves', [LeaveController::class,'myLeaves'])->name('leave.my');
-
-
     Route::get('/',                [LeaveController::class, 'index'])->name('index');
     Route::post('/store',          [LeaveController::class, 'store'])->name('store');
     Route::patch('/{id}/status',   [LeaveController::class, 'updateStatus'])->name('updateStatus');

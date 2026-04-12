@@ -70,6 +70,20 @@ class AuthController extends Controller
         return redirect('/login');
     }
 
+
+    public function helpdesk()
+{
+    $data = [
+        'phone' => '+91 9876543210',
+        'email' => 'support@gmail.com',
+        'website' => 'www.yoursite.com',
+        'address' => 'Varanasi, India',
+        'timing_days' => 'Mon - Fri',
+        'timing_hours' => '9:00 AM - 6:00 PM'
+    ];
+
+    return view('auth.helpdesk', compact('data'));
+}
     public function profile()
     {
         $user = Auth::user()->load('role');
@@ -166,46 +180,56 @@ class AuthController extends Controller
 
     // ✅ SEND OTP (AJAX)
     public function sendOtp(Request $request)
-    {
-        // Validate
-        $request->validate([
-            'email' => 'required|email'
-        ]);
+{
+    // Validate
+    $request->validate([
+        'email' => 'required|email'
+    ]);
 
-        // Check user
-        $user = User::where('email', $request->email)->first();
-        // dd($user);
+    // Check user
+    $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => '<div class="error">Email not found</div>'
-            ]);
-        }
-
-        // Generate OTP
-        $otp = rand(100000, 999999);
-
-        // Store in DB (update if exists)
-        DB::table('otp_verifications')->updateOrInsert(
-            ['user_id' => $user->id],
-            [
-                'otp' => $otp,
-                'expires_at' => Carbon::now()->addMinutes(5),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]
-        );
-
-      
-        Mail::to($request->email)->send(new OtpMail($otp));
-        // dd('OTP sent: ' . $otp);
-       
+    if (!$user) {
         return response()->json([
-            'status' => true,
-            'message' => '<div class="success">OTP sent to your email</div>'
+            'status' => false,
+            'message' => '<div class="error">Email not found</div>'
         ]);
     }
+
+    // ✅ OTP Restriction (ADDED)
+    $otpData = DB::table('otp_verifications')
+                ->where('user_id', $user->id)
+                ->first();
+
+    if ($otpData && now()->lessThan($otpData->expires_at)) {
+        return response()->json([
+            'status' => false,
+            'message' => '<div class="error">OTP already sent. Please wait 5 minutes.</div>'
+        ]);
+    }
+
+    // Generate OTP
+    $otp = rand(100000, 999999);
+
+    // Store in DB (update if exists)
+    DB::table('otp_verifications')->updateOrInsert(
+        ['user_id' => $user->id],
+        [
+            'otp' => $otp,
+            'expires_at' => Carbon::now()->addMinutes(5),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]
+    );
+
+    // Send Mail
+    Mail::to($request->email)->send(new OtpMail($otp));
+
+    return response()->json([
+        'status' => true,
+        'message' => '<div class="success">OTP sent to your email</div>'
+    ]);
+}
 
     public function verifyOtp(Request $request)
     {

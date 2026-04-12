@@ -21,7 +21,7 @@ class HiringController extends Controller
             $query->whereBetween('applied_date', [$request->from, $request->to]);
         }
 
-        $jobSeekers = $query->orderBy('applied_date', 'desc')->paginate(10);
+        $jobSeekers = $query->latest()->paginate(10)->appends($request->all());
         // dd($jobSeekers);
 
         return view('hiring.accepted', compact('jobSeekers'));
@@ -40,7 +40,7 @@ class HiringController extends Controller
             $query->whereBetween('applied_date', [$request->from, $request->to]);
         }
 
-        $jobSeekers = $query->orderBy('applied_date', 'desc')->paginate(10);
+        $jobSeekers = $query->latest()->paginate(10)->appends($request->all());
 
         return view('hiring.rejected', compact('jobSeekers'));
     }
@@ -61,7 +61,7 @@ class HiringController extends Controller
         }
 
         // latest first
-        $jobSeekers = $query->orderBy('applied_date', 'desc')->paginate(10);
+        $jobSeekers = $query->latest()->paginate(10)->appends($request->all());
 
         return view('hiring.newApplication', compact('jobSeekers'));
     }

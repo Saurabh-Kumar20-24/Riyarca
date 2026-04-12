@@ -99,10 +99,10 @@
             </a>
             <ul class="sub-menu collapse" id="leadsMenu">
                 <li class="nav-item">
-                    <a href="{{ route('leads.index') }}" class="nav-link">All Leads</a>
+                    <a href="{{ route('leads.index') }}" class="nav-link {{ request()->routeIs('leads.index') ? 'active' : '' }}">All Leads</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('leads.create') }}" class="nav-link">Add Lead</a>
+                    <a href="{{ route('leads.create') }}" class="nav-link {{ request()->routeIs('leads.create') ? 'active' : '' }}">Add Lead</a>
                 </li>
             </ul>
         </div>

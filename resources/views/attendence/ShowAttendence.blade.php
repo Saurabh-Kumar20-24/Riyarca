@@ -11,40 +11,11 @@
     <h2>Attendance — {{ $employees->name }}</h2>
     <div class="header-actions">
 
-        {{-- Date Filter --}}
-        <!-- <form method="GET"
-              action="{{ route('attendence.ShowAttendence') }}"
-              class="d-flex gap-2">
-            <input type="hidden" name="emp_id" value="{{ $employees->id }}">
-            <input type="date" name="from" class="search-input"
-                   value="{{ request('from') }}">
-            <input type="date" name="to" class="search-input"
-                   value="{{ request('to') }}">
-            <button type="submit" class="btn-search">Filter</button>
-            <a href="{{ route('attendence.ShowAttendence') }}?emp_id={{ $employees->id }}"
-               class="btn-search" style="background:#6b7280;">Reset</a>
-        </form> -->
-
         <a href="{{ route('attendence.index') }}"
            class="btn-add" style="background:#6b7280;">← Back</a>
     </div>
 </div>
 
-{{-- Employee Info --}}
-<!-- <div style="background:#1e293b; border-radius:12px; padding:16px 24px;
-    margin-bottom:20px; display:flex; flex-wrap:wrap;
-    gap:24px; color:#fff; font-size:14px;">
-    <div><span style="color:#94a3b8">Name:</span>
-        <strong>{{ $employees->name }}</strong></div>
-    <div><span style="color:#94a3b8">Email:</span>
-        {{ $employees->email }}</div>
-    <div><span style="color:#94a3b8">Employee ID:</span>
-        <strong>{{ $employees->employee_id ?? '-' }}</strong></div>
-    <div><span style="color:#94a3b8">Role:</span>
-        {{ $employees->role->role_name ?? '-' }}</div>
-    <div><span style="color:#94a3b8">Total Records:</span>
-        <strong>{{ $attendances->total() }}</strong></div>
-</div> -->
 
 {{-- Table --}}
 <div class="table-card">
@@ -75,11 +46,11 @@
                         : '-' }}</td>
                 <td>{{ $log->total_hours ? $log->total_hours . ' hrs' : '-' }}</td>
                 <td>
-                    @php $status = strtolower($log->status ?? 'present'); @endphp
+                  @php $status = strtolower($log->late_status ?? 'on time'); @endphp
                     <span style="padding:3px 12px; border-radius:99px;
                         font-size:12px; font-weight:600;
-                        background:{{ $status === 'present' ? '#064e3b' : '#450a0a' }};
-                        color:{{ $status === 'present' ? '#10b981' : '#ef4444' }};">
+                        background:{{ $status === 'late' ? '#bc1717' : '#129a76' }};
+                        color:{{ $status === 'late' ? '#f9f1f1' : '#e2eeea' }};">
                         {{ ucfirst($status) }}
                     </span>
                 </td>

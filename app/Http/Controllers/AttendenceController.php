@@ -11,46 +11,23 @@ use Carbon\Carbon;
 
 class AttendenceController extends Controller
 {
-    
-    // public function index(Request $request)
-    // {
-    //     $authUser = Auth::user();
-
-    //     $authUser->load('role');
-
-    //     if($authUser->role_id== 1 || $authUser->role_id== 9){
-    //         $employees = User::with('role','manager')->where('id','!=',1)->where('is_active',1);
-    //     }else{
-    //         $employees = User::with('role','manager')->where('assigned_manager',$authUser->id)->where('is_active',1);
-    //     }
-    //     //search
-    //         if ($request->search) {
-    //             $employees->where(function ($q) use ($request) {
-    //                 $q->where('name', 'like', '%' . $request->search . '%')
-    //                 ->orWhere('email', 'like', '%' . $request->search . '%')
-    //                 ->orWhere('phone', 'like', '%' . $request->search . '%');
-    //             });
-    //         }
-
-    //     $employees = $employees->get();
-    //     $roles = Role::all();
-    //     return view('attendence.index',compact('employees', 'roles'));
-    // }
 
     public function index(Request $request)
     {
         $authUser = Auth::user();
         $authUser->load('role');
 
-        if ($authUser->role_id == 1 || $authUser->role_id == 9) {
-            $employees = User::with('role', 'manager')
-                ->where('id', '!=', 1)
-                ->get();
-        } else {
-            $employees = User::with('role', 'manager')
-                ->where('assigned_manager', $authUser->id)
-                ->get();
+        $query = User::with('role', 'manager', 'attendence');
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('phone', 'like', '%' . $request->search . '%');
+            });
         }
+
+        $employees = $query->paginate(10)->withQueryString();
 
         $roles = Role::all();
 
@@ -64,28 +41,103 @@ class AttendenceController extends Controller
 
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            // 'user_id'         => 'required|string',
+            'employee_id'     => 'required|string|exists:users,employee_id',
+            'attendance_date' => 'required|date',
+            'check_in'        => 'required',
+            'check_out'       => 'nullable|after:check_in',
+        ]);
+
+        $employee = User::where('employee_id', $request->employee_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$employee) {
+            return response()->json([
+                'status'  => 'not_found',
+                'message' => 'No employee found with ID: ' . $request->user_id,
+            ], 404);
+        }
+
+        $existing = Attendence::where('user_id', $employee->id)
+            ->whereDate('attendance_date', $request->attendance_date)
+            ->first();
+
+        if ($existing) {
+            return response()->json([
+                'status'  => 'duplicate',
+                'message' => 'Attendance for ' . $employee->name . ' on ' . $request->attendance_date . ' already exists.',
+            ], 409);
+        }
+
+        $checkInTime = Carbon::parse($request->check_in);
+        $lateThreshold = Carbon::parse('10:05:00');
+        $lateStatus    = $checkInTime->gt($lateThreshold) ? 'Late' : 'On Time';
+
+        if ($request->check_out) {
+            $checkOut     = Carbon::parse($request->check_out);
+            $lunchStart   = Carbon::parse('13:00:00');
+            $eveningCutoff = Carbon::parse('17:45:00');
+            $fourHours    = 4 * 60;
+
+            if ($checkInTime->lte(Carbon::parse('10:05:00'))) {
+                if ($checkOut->gte($eveningCutoff)) {
+                    $status = 'present';
+                } elseif ($checkOut->gte($lunchStart)) {
+                    $status = 'half_day';
+                } else {
+                    $status = 'absent';
+                }
+            } elseif ($checkInTime->gte($lunchStart) && $checkInTime->lte(Carbon::parse('13:30:00'))) {
+                if ($checkOut->gte($eveningCutoff)) {
+                    $status = 'half_day';
+                } else {
+                    $status = 'absent';
+                }
+            } else {
+                $totalMinutes = $checkInTime->diffInMinutes($checkOut);
+                $status = $totalMinutes >= ($fourHours) ? 'half_day' : 'absent';
+            }
+        } else {
+            $status = 'pending'; 
+        }
+
+        Attendence::create([
+            'user_id'         => $employee->id,
+            'employee_id'     => $employee->employee_id,
+            'attendance_date' => $request->attendance_date,
+            'check_in'        => $request->check_in,
+            'check_out'       => $request->check_out,
+            'late_status'     => $lateStatus,
+            'status'          => $status,
+        ]);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Attendance for ' . $employee->name . ' added successfully.',
+        ], 201);
     }
 
-  
+
     public function show(string $id)
     {
         //
     }
 
-   
+
     public function edit(string $id)
     {
         //
     }
 
-   
+
     public function update(Request $request, string $id)
     {
         //
     }
 
-    
+
     public function destroy(string $id)
     {
         //
@@ -97,16 +149,16 @@ class AttendenceController extends Controller
         $id = $request->emp_id;
         //  dd($empId);
         $employees = User::findOrFail($id);
-         $attendances = Attendence::where('user_id', $id)
-        ->orderBy('attendance_date', 'desc')
-        ->paginate(15);
+        $attendances = Attendence::where('user_id', $id)
+            ->orderBy('attendance_date', 'desc')
+            ->paginate(15);
 
-            // dd($attendances);
-        
+        // dd($attendances);
+
         return view('attendence.ShowAttendence', compact('employees', 'attendances'));
     }
 
-     // NFC Write Page 
+    // NFC Write Page 
     public function nfcWrite()
     {
         if (Auth::user()->role_id != 1) {
@@ -114,9 +166,9 @@ class AttendenceController extends Controller
         }
 
         $employees = User::where('is_active', 1)
-                         ->where('id', '!=', 1)
-                         ->whereNotNull('employee_id')
-                         ->get();
+            ->where('id', '!=', 1)
+            ->whereNotNull('employee_id')
+            ->get();
 
         return view('attendence.nfc-write', compact('employees'));
     }
@@ -127,7 +179,7 @@ class AttendenceController extends Controller
         return view('attendence.nfc-scanner');
     }
 
-    // ── NFC Scan — Called by JS on card tap ────────────────────
+    // ── NFC Scan — Called by JS on card tap 
     public function nfcScan(Request $request)
     {
         $request->validate([
@@ -136,9 +188,9 @@ class AttendenceController extends Controller
 
         // Find employee by employee_id
         $employee = User::where('employee_id', $request->employee_id)
-                        ->where('is_active', 1)
-                        ->first();
-        
+            ->where('is_active', 1)
+            ->first();
+
         // Not found
         if (!$employee) {
             return response()->json([
@@ -149,11 +201,11 @@ class AttendenceController extends Controller
 
         // Check today's record
         $todayLog = Attendence::where('user_id', $employee->id)
-                              ->whereDate('attendance_date', today())
-                              ->first();
+            ->whereDate('attendance_date', today())
+            ->first();
 
-         if (!$todayLog) {
-            // ── First tap = Check In ───────────────────────────
+        if (!$todayLog) {
+            // ── First tap = Check In
             Attendence::create([
                 'user_id'         => $employee->id,
                 'attendance_date' => today(),
@@ -161,8 +213,8 @@ class AttendenceController extends Controller
                 'status'          => 'present',
             ]);
             $type = 'check_in';
-         } elseif (!$todayLog->check_out) {
-            // ── Second tap = Check Out ─────────────────────────
+        } elseif (!$todayLog->check_out) {
+            // ── Second tap = Check Out 
             $checkIn    = Carbon::parse($todayLog->check_in);
             $checkOut   = Carbon::now();
             $totalHours = round($checkIn->diffInMinutes($checkOut) / 60, 2);
@@ -173,14 +225,14 @@ class AttendenceController extends Controller
             ]);
             $type = 'check_out';
         } else {
-            // ── Already done both ──────────────────────────────
+            // ── Already done both
             return response()->json([
                 'status'  => 'already_done',
                 'message' => $employee->name . ' has already completed attendance today.',
             ]);
         }
-        
-          return response()->json([
+
+        return response()->json([
             'status'   => 'success',
             'type'     => $type,
             'employee' => [

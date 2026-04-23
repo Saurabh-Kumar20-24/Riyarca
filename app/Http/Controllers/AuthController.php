@@ -15,7 +15,7 @@ use App\Mail\OtpMail;
 
 class AuthController extends Controller
 {
-    
+
     public function index()
     {
         return view('auth.login');
@@ -42,7 +42,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-       
+
         if ($user->role->role_name === 'admin')   return redirect('dashboard');
         if ($user->role->role_name === 'manager') return redirect('dashboard');
         if ($user->role->role_name === 'user')    return redirect('dashboard');
@@ -50,6 +50,7 @@ class AuthController extends Controller
         if ($user->role->role_name === 'developer')    return redirect('dashboard');
         if ($user->role->role_name === 'student')    return redirect('dashboard');
         if ($user->role->role_name === 'BDA')    return redirect('dashboard');
+        if ($user->role->role_name === 'Office associate')    return redirect('dashboard');
 
         Auth::logout();
         return back()->withErrors(['email' => 'Unauthorized role.']);
@@ -66,40 +67,36 @@ class AuthController extends Controller
 
 
     public function helpdesk()
-{
-    $data = [
-        'phone' => '+91 9876543210',
-        'email' => 'support@gmail.com',
-        'website' => 'www.yoursite.com',
-        'address' => 'Varanasi, India',
-        'timing_days' => 'Mon - Fri',
-        'timing_hours' => '9:00 AM - 6:00 PM'
-    ];
+    {
+        $data = [
+            'phone' => '+91 9876543210',
+            'email' => 'support@gmail.com',
+            'website' => 'www.yoursite.com',
+            'address' => 'Varanasi, India',
+            'timing_days' => 'Mon - Fri',
+            'timing_hours' => '9:00 AM - 6:00 PM'
+        ];
 
-    return view('auth.helpdesk', compact('data'));
-}
+        return view('auth.helpdesk', compact('data'));
+    }
     public function profile()
     {
         $user = Auth::user()->load('role');
 
-        if ($user->assigned_manager) {
-            $manager = User::where('id', $user->assigned_manager)
-                ->where('role_id', 2)
-                ->first();
-            $user->managerName = $manager ? $manager->name : '—';
-        } else {
-            $user->managerName = '—';
+        $manager = null;
+        if (!in_array($user->role_id, [1, 2]) && $user->assigned_manager) {
+            $manager = User::with('role')->find($user->assigned_manager);
         }
 
-        return view('auth.profile', compact('user'));
+        return view('auth.profile', compact('user', 'manager'));
     }
 
     public function update(Request $request)
     {
         $request->validate([
             'dob'           => ['nullable', 'date'],
-            'phone'         => ['nullable', 'string', 'max:20'],
-            'address'       => ['nullable', 'string', 'max:500'],
+            'phone'         => ['nullable', 'string', 'max:10'],
+            'address'       => ['nullable', 'string', 'max:200'],
             'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:3072'],
         ]);
 
@@ -154,8 +151,6 @@ class AuthController extends Controller
             ]);
         }
 
-
-        // Update password
         $user = Auth::user();
         $user->password = Hash::make($request->password);
         $user->save();
@@ -168,107 +163,263 @@ class AuthController extends Controller
         return view('auth.EmailVerify');
     }
 
+    // public function sendOtp(Request $request)
+    // {
+
+    //     $request->validate([
+    //         'email' => 'required|email'
+    //     ]);
+
+
+    //     $user = User::where('email', $request->email)->first();
+
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => '<div class="error">Email not found</div>'
+    //         ]);
+    //     }
+
+    //     $otpData = DB::table('otp_verifications')
+    //         ->where('user_id', $user->id)
+    //         ->first();
+
+    //     if ($otpData && now()->lessThan($otpData->expires_at)) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => '<div class="error">OTP already sent. Please wait 5 minutes.</div>'
+    //         ]);
+    //     }
+
+
+    //     $otp = rand(100000, 999999);
+
+
+    //     DB::table('otp_verifications')->updateOrInsert(
+    //         ['user_id' => $user->id],
+    //         [
+    //             'otp' => $otp,
+    //             'expires_at' => Carbon::now()->addMinutes(5),
+    //             'created_at' => now(),
+    //             'updated_at' => now()
+    //         ]
+    //     );
+
+
+    //     Mail::to($request->email)->send(new OtpMail($otp));
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => '<div class="success">OTP sent to your email</div>'
+    //     ]);
+    // }
+
     public function sendOtp(Request $request)
     {
-   
-        $request->validate([
-            'email' => 'required|email'
-        ]);
-
-     
-        $user = User::where('email', $request->email)->first();
-      
-
-    if (!$user) {
-        return response()->json([
-            'status' => false,
-            'message' => '<div class="error">Email not found</div>'
-        ]);
-    }
-
-    // ✅ OTP Restriction (ADDED)
-    $otpData = DB::table('otp_verifications')
-                ->where('user_id', $user->id)
-                ->first();
-
-    if ($otpData && now()->lessThan($otpData->expires_at)) {
-        return response()->json([
-            'status' => false,
-            'message' => '<div class="error">OTP already sent. Please wait 5 minutes.</div>'
-        ]);
-    }
-
-        
-        $otp = rand(100000, 999999);
-
-        
-        DB::table('otp_verifications')->updateOrInsert(
-            ['user_id' => $user->id],
-            [
-                'otp' => $otp,
-                'expires_at' => Carbon::now()->addMinutes(5),
-                'created_at' => now(),
-                'updated_at' => now()
-            ]
-        );
-
-
-        Mail::to($request->email)->send(new OtpMail($otp));
-       
-        return response()->json([
-            'status' => true,
-            'message' => '<div class="success">OTP sent to your email</div>'
-        ]);
-    }
-
-    public function verifyOtp(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required'
-        ]);
+        $request->validate(['email' => 'required|email']);
 
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json([
-                'status' => false,
-                'message' => '<div class="error">User not found</div>'
+                'status'  => false,
+                'message' => '<div class="error">Email not found</div>'
             ]);
         }
 
         $otpData = DB::table('otp_verifications')
             ->where('user_id', $user->id)
-            ->where('otp', $request->otp)
             ->first();
 
-       
-        if (!$otpData) {
+        if ($otpData && Carbon::parse($otpData->expires_at)->isFuture()) {
             return response()->json([
-                'status' => false,
-                'message' => '<div class="error">Invalid OTP</div>'
+                'status'  => false,
+                'message' => '<div class="error">OTP already sent. Please wait 5 minutes.</div>'
             ]);
         }
 
-     
-        if (Carbon::now()->gt($otpData->expires_at)) {
-            return response()->json([
-                'status' => false,
-                'message' => '<div class="error">OTP expired</div>'
-            ]);
-        }
+        $otp = rand(100000, 999999);
 
-      
-        session(['verified_email' => $request->email]);
+        DB::table('otp_verifications')->where('user_id', $user->id)->delete();
+
+        DB::table('otp_verifications')->insert([
+            'user_id'    => $user->id,
+            'otp'        => (string) $otp,
+            'expires_at' => Carbon::now()->addMinutes(5),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        Mail::to($request->email)->send(new OtpMail($otp));
 
         return response()->json([
-            'status' => true,
-            'message' => '<div class="success">OTP verified successfully</div>'
+            'status'  => true,
+            'message' => '<div class="success">OTP sent to your email</div>'
         ]);
     }
 
+    // public function verifyOtp(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //         'otp' => 'required',
+
+    //     ]);
+
+    //     $user = User::where('email', $request->email)->first();
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => '<div class="error">User not found</div>'
+    //         ]);
+    //     }
+
+    //     $otpData = DB::table('otp_verifications')
+    //         ->where('user_id', $user->id)
+    //         ->where('otp', $request->otp)
+    //         ->first();
 
 
+    //     if (!$otpData) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => '<div class="error">Invalid OTP</div>'
+    //         ]);
+    //     }
+
+
+    //     if (Carbon::now()->gt($otpData->expires_at)) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => '<div class="error">OTP expired</div>'
+    //         ]);
+    //     }
+
+
+    //     session(['verified_email' => $request->email]);
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => '<div class="success">OTP verified successfully</div>'
+    //     ]);
+    // }
+
+    // public function verifyOtp(Request $request)
+    // {
+    //     $email = trim($request->email);
+    //     $otp   = trim($request->otp);
+    //     $type  = $request->type ?? 'forgot_password';
+
+    //     // Find user by email
+    //     $user = User::where('email', $email)->first();
+
+    //     if (!$user) {
+    //         return response()->json([
+    //             'status'  => false,
+    //             'message' => '<span class="error">Email not found</span>'
+    //         ]);
+    //     }
+
+    //     // Look in otp_verifications table (same table sendOtp uses)
+    //     $record = DB::table('otp_verifications')
+    //         ->where('user_id', $user->id)
+    //         ->first();
+
+    //     if (!$record || (string)$record->otp != (string)$otp) {
+    //         return response()->json([
+    //             'status'  => false,
+    //             'message' => '<span class="error">Invalid OTP</span>'
+    //         ]);
+    //     }
+
+    //     // Check expiry using expires_at column
+    //     if (now()->greaterThan($record->expires_at)) {
+    //         return response()->json([
+    //             'status'  => false,
+    //             'message' => '<span class="error">OTP expired</span>'
+    //         ]);
+    //     }
+
+    //     session(['verified_email' => $email, 'otp_type' => $type]);
+
+    //     // Delete OTP after successful verification
+    //     DB::table('otp_verifications')->where('user_id', $user->id)->delete();
+
+    //     $redirect = $type === 'helpdesk'
+    //         ? route('helpdesk')
+    //         : route('forgot_password');
+
+    //     return response()->json([
+    //         'status'   => true,
+    //         'message'  => '<span class="success">OTP Verified Successfully!</span>',
+    //         'redirect' => $redirect
+    //     ]);
+    // }
+
+    public function verifyOtp(Request $request)
+    {
+        try {
+            $email = $request->email;
+            $otp   = $request->otp;
+            $type  = $request->type ?? 'forgot_password';
+
+            $user = User::where('email', $email)->first();
+            if (!$user) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => '<span class="error">Email not found</span>'
+                ]);
+            }
+
+            $record = DB::table('otp_verifications')
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$record || (string)$record->otp !== (string)$otp) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => '<span class="error">Invalid OTP</span>'
+                ]);
+            }
+
+            if (Carbon::parse($record->expires_at)->isPast()) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => '<span class="error">OTP expired</span>'
+                ]);
+            }
+
+            session(['verified_email' => $email, 'otp_type' => $type]);
+
+            DB::table('otp_verifications')->where('user_id', $user->id)->delete();
+
+            $redirect = $type === 'helpdesk'
+                ? route('helpdesk')
+                : route('forgot_password');
+
+            return response()->json([
+                'status'   => true,
+                'message'  => '<span class="success">OTP Verified Successfully!</span>',
+                'redirect' => $redirect
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => '<span class="error">' . $e->getMessage() . '</span>'
+            ]);
+        }
+    }
+
+
+    public function helpdeskVerified()
+    {
+        if (!session('verified_email')) {
+            return redirect()->route('email_verify')->with('error', 'Please verify your email first.');
+        }
+        return redirect()->route('helpdesk');
+    }
 
 
     public function showForgotPasswordForm()
@@ -278,18 +429,15 @@ class AuthController extends Controller
 
     public function forgotResetPassword(Request $request)
     {
-        // Validate
         $request->validate([
             'password' => 'required|min:6',
             'confirm_password' => 'required'
         ]);
 
-        // Match password
         if ($request->password != $request->confirm_password) {
             return back()->with('error', 'Password does not match');
         }
 
-        // Get verified email from session
         $email = session('verified_email');
 
         if (!$email) {
@@ -300,7 +448,6 @@ class AuthController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        // Delete OTP
         $user = User::where('email', $email)->first();
         if ($user) {
             DB::table('otp_verifications')->where('user_id', $user->id)->delete();
@@ -309,7 +456,6 @@ class AuthController extends Controller
 
         session()->forget('verified_email');
 
-        // Redirect to login
         return redirect()->route('login')->with('success', 'Password Change successfully!');
     }
 }

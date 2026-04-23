@@ -1,0 +1,293 @@
+
+:root {
+    --notif-bg:        #ffffff;
+    --notif-border:    #ececec;
+    --notif-shadow:    0 8px 32px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.07);
+    --notif-radius:    14px;
+    --notif-accent:    #6A2FE0;
+    --notif-green:     #16a34a;
+    --notif-orange:    #ea580c;
+    --notif-purple:    #7c3aed;
+    --notif-blue:      #2563eb;
+    --notif-text:      #111827;
+    --notif-sub:       #6b7280;
+    --notif-hover:     #f5f3ff;
+    --notif-unread-bg: #faf8ff;
+}
+
+/* ── Bell wrapper ── */
+.notif-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+
+.notif-bell {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    color: var(--muted);
+    font-size: 16px;
+    transition: background .2s, color .2s, border-color .2s, box-shadow .2s;
+}
+.notif-bell:hover {
+    background: rgba(106, 47, 224, .08);
+    border-color: rgba(106, 47, 224, .25);
+    color: var(--royal-purple);
+    box-shadow: 0 2px 8px rgba(106, 47, 224, .12);
+}
+
+.notif-badge {
+    position: absolute !important;
+    top: -5px !important;
+    right: -5px !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: unset !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: #ef4444 !important;
+    color: #fff !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    line-height: 18px !important;
+    text-align: center !important;
+    border: 2px solid #ffffff !important;
+    pointer-events: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10 !important;
+}
+
+@keyframes badgePop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+/* ── Panel ── */
+.notif-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 360px;
+    max-height: 480px;
+    background: var(--notif-bg);
+    border: 1px solid var(--notif-border);
+    border-radius: var(--notif-radius);
+    box-shadow: var(--notif-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(-8px) scale(.97);
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+}
+.notif-panel.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+.notif-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--notif-border);
+    flex-shrink: 0;
+}
+.notif-panel-title {
+    font-weight: 700;
+    font-size: .95rem;
+    color: var(--notif-text);
+}
+.notif-mark-all {
+    background: none;
+    border: none;
+    color: var(--notif-accent);
+    font-size: .78rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: background .15s;
+}
+.notif-mark-all:hover { background: rgba(106,47,224,.09); }
+
+/* ── List ── */
+.notif-list {
+    overflow-y: auto;
+    flex: 1;
+}
+.notif-list::-webkit-scrollbar { width: 4px; }
+.notif-list::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 18px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--notif-border);
+    background: var(--notif-unread-bg);
+    transition: background .15s;
+    position: relative;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover      { background: var(--notif-hover); }
+.notif-item.is-read    { background: var(--notif-bg); }
+.notif-item.is-read .notif-dot { display: none; }
+
+.notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+.notif-green  { background: #dcfce7; color: var(--notif-green); }
+.notif-orange { background: #ffedd5; color: var(--notif-orange); }
+.notif-purple { background: #ede9fe; color: var(--notif-purple); }
+.notif-blue   { background: #dbeafe; color: var(--notif-blue); }
+
+.notif-body       { flex: 1; min-width: 0; }
+.notif-title      { font-size: .83rem; font-weight: 600; color: var(--notif-text); margin-bottom: 2px; }
+.notif-message    { font-size: .78rem; color: var(--notif-sub); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.notif-time       { font-size: .72rem; color: #9ca3af; margin-top: 4px; }
+.notif-dot        { width: 8px; height: 8px; border-radius: 50%; background: var(--notif-accent); flex-shrink: 0; margin-top: 5px; }
+
+.notif-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 48px 20px;
+    color: #9ca3af;
+    font-size: .85rem;
+}
+.notif-empty i { font-size: 2rem; color: #d1d5db; }
+
+/* ── Birthday Card Overlay ── */
+.bday-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(4px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn .3s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.bday-card {
+    position: relative;
+    width: min(480px, 92vw);
+    background: linear-gradient(135deg, #1a0533 0%, #2d1058 50%, #1a0533 100%);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.08);
+    animation: cardPop .45s cubic-bezier(.34,1.56,.64,1);
+}
+
+@keyframes cardPop {
+    from { transform: scale(.7) translateY(40px); opacity: 0; }
+    to   { transform: scale(1) translateY(0);      opacity: 1; }
+}
+
+.bday-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: confettiFall linear infinite;
+}
+
+@keyframes confettiFall {
+    0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1; }
+    100% { transform: translateY(520px) rotate(720deg); opacity: 0; }
+}
+
+.bday-inner {
+    position: relative;
+    z-index: 2;
+    padding: 48px 36px 40px;
+    text-align: center;
+}
+
+.bday-emoji {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    animation: bounce 1s ease infinite alternate;
+}
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-10px); }
+}
+
+.bday-heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.25;
+    margin-bottom: 14px;
+}
+.bday-heading span {
+    background: linear-gradient(90deg, #f0abfc, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.bday-sub {
+    color: rgba(255,255,255,.72);
+    font-size: .92rem;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+
+.bday-btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #a855f7, #6A2FE0);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 32px;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 4px 20px rgba(106,47,224,.45);
+}
+.bday-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(106,47,224,.55);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .notif-panel { width: calc(100vw - 24px); right: -60px; }
+}

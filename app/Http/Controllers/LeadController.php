@@ -7,6 +7,7 @@ use App\Models\Lead;
 use App\Models\LeadActivity;
 use App\Models\User;
 use Auth;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
 
 class LeadController extends Controller
 {
@@ -19,9 +20,9 @@ class LeadController extends Controller
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('name',    'like', '%'.$request->search.'%')
-                  ->orWhere('company','like', '%'.$request->search.'%')
-                  ->orWhere('phone',  'like', '%'.$request->search.'%');
+                $q->where('name',    'like', '%' . $request->search . '%')
+                    ->orWhere('company', 'like', '%' . $request->search . '%')
+                    ->orWhere('phone',  'like', '%' . $request->search . '%');
             });
         }
 
@@ -60,10 +61,9 @@ class LeadController extends Controller
         ]);
 
         return redirect()->route('leads.index')
-                         ->with('success', 'Lead created successfully');
+            ->with('success', 'Lead created successfully');
     }
 
-    // Return activities as JSON
     public function activities($id)
     {
         $activities = LeadActivity::with('user')
@@ -77,7 +77,7 @@ class LeadController extends Controller
 
     public function storeActivity(Request $request)
     {
-        
+
         if (Auth::user()->role_id !== 11) {
             return response()->json([
                 'success' => false,
@@ -90,7 +90,7 @@ class LeadController extends Controller
             'contact_type' => 'required',
             'duration'     => 'nullable|numeric|min:0',
             'discussion'   => 'nullable|string',
-            'followup_date'=> 'nullable|date',
+            'followup_date' => 'nullable|date',
         ]);
 
         LeadActivity::create([
@@ -99,7 +99,7 @@ class LeadController extends Controller
             'contact_type' => $request->contact_type,
             'duration'     => $request->duration,
             'discussion'   => $request->discussion,
-            'followup_date'=> $request->followup_date,
+            'followup_date' => $request->followup_date,
         ]);
 
         $activities = LeadActivity::with('user')
@@ -118,7 +118,7 @@ class LeadController extends Controller
             'contact_type' => $a->contact_type,
             'duration'     => $a->duration,
             'discussion'   => $a->discussion,
-            'followup_date'=> $a->followup_date
+            'followup_date' => $a->followup_date
                 ? \Carbon\Carbon::parse($a->followup_date)->format('d M Y')
                 : null,
             'created_at'   => $a->created_at->format('d M Y h:i A'),

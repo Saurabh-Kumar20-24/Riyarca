@@ -10,9 +10,9 @@
 </div>
 
 @if(session('success'))
-    <div class="alert-success">
-        <i class="bi bi-check-circle"></i> {{ session('success') }}
-    </div>
+<div class="alert-success">
+    <i class="bi bi-check-circle"></i> {{ session('success') }}
+</div>
 @endif
 
 <div class="form-card" style="max-width: 480px;">
@@ -23,12 +23,12 @@
         <div class="form-group">
             <label class="form-label">Role Name</label>
             <input type="text"
-                   name="role_name"
-                   class="form-input {{ $errors->has('role_name') ? 'input-error' : '' }}"
-                   placeholder="e.g. manager, hr, developer"
-                   value="{{ old('role_name') }}">
+                name="role_name"
+                class="form-input {{ $errors->has('role_name') ? 'input-error' : '' }}"
+                placeholder="e.g. manager, hr, developer"
+                value="{{ old('role_name') }}">
             @error('role_name')
-                <span class="error-msg">{{ $message }}</span>
+            <span class="error-msg">{{ $message }}</span>
             @enderror
         </div>
 

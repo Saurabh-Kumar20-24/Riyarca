@@ -29,7 +29,5 @@ class EOD extends Model
         return $this->hasMany(EOD::class,'user_Id');
     }
 
-    // public function eod(){
-    //     return $this->hasMany(EOD::class);
-    // }
+    
 }

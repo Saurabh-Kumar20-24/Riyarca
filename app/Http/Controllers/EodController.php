@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class EodController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   
     public function index()
     {
        $authUser = Auth::user();
@@ -26,7 +24,7 @@ class EodController extends Controller
                              ->where('is_active', 1);
         }
 
-        $employees = $employees->get();
+        $employees = $employees->paginate(10);
 
         $employees->each(function ($employee) {
             $employee->lastEod = EOD::where('user_id', $employee->id)
@@ -60,9 +58,6 @@ class EodController extends Controller
         return view('eod.previousEod', compact('employee', 'eods'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $authUser = Auth::user();
@@ -74,9 +69,7 @@ class EodController extends Controller
         return view('eod.create', compact('authUser', 'alreadySubmitted'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+  
     public function store(Request $request)
     {
         $authUser = Auth::user();
@@ -103,33 +96,22 @@ class EodController extends Controller
         return redirect()->route('eod.index')->with('success', 'EOD report submitted successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(Request $request, string $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //

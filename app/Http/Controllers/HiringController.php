@@ -48,19 +48,17 @@ class HiringController extends Controller
     public function newApplication(Request $request){
 
          $query = JobSeeker::with('position')
-        ->where('status', 'pending'); // latest pending applications
+        ->where('status', 'pending'); 
 
-        // search
+   
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // date filter
         if ($request->filled('from') && $request->filled('to')) {
             $query->whereBetween('applied_date', [$request->from, $request->to]);
         }
 
-        // latest first
         $jobSeekers = $query->latest()->paginate(10)->appends($request->all());
 
         return view('hiring.newApplication', compact('jobSeekers'));

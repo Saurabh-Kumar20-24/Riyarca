@@ -8,9 +8,9 @@
 @section('content')
 
 @if(session('success'))
-    <div id="successAlert" class="alert-success-custom">
-        {{ session('success') }}
-    </div>
+<div id="successAlert" class="alert-success-custom">
+    {{ session('success') }}
+</div>
 @endif
 
 <div class="page-header">
@@ -46,11 +46,11 @@
 
                 <td>
                     @if($task->status == 'completed')
-                        <span class="badge-active">Completed</span>
+                    <span class="badge-active">Completed</span>
                     @elseif($task->status == 'in_progress')
-                        <span class="badge-inactive">In Progress</span>
+                    <span class="badge-inactive">In Progress</span>
                     @else
-                        <span class="badge-inactive">Pending</span>
+                    <span class="badge-inactive">Pending</span>
                     @endif
                 </td>
             </tr>
@@ -67,10 +67,10 @@
 </div>
 
 <script>
-setTimeout(function () {
-    let alert = document.getElementById('successAlert');
-    if (alert) alert.style.display = 'none';
-}, 3000);
+    setTimeout(function() {
+        let alert = document.getElementById('successAlert');
+        if (alert) alert.style.display = 'none';
+    }, 3000);
 </script>
 
 @endsection

@@ -16,9 +16,11 @@ class RoleMiddleware
         }
 
         $user = Auth::user();
-        $user->load('role');
 
-        if (!$user->role || !in_array($user->role->role_name, $roles)) {
+        if (
+            !$user->role ||
+            !in_array(strtolower($user->role->role_name), array_map('strtolower', $roles))
+        ) {
             abort(403, 'Unauthorized. You do not have access to this page.');
         }
 

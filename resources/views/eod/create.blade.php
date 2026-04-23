@@ -16,24 +16,24 @@
     </div>
 
     @if($alreadySubmitted)
-        <div class="alert-danger-custom">
-            <i class="bi bi-exclamation-circle-fill"></i>
-            You have already submitted your EOD report for today.
-        </div>
+    <div class="alert-danger-custom">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        You have already submitted your EOD report for today.
+    </div>
     @else
 
     @if(session('success'))
-        <div class="alert-success-custom">
-            <i class="bi bi-check-circle-fill"></i>
-            {{ session('success') }}
-        </div>
+    <div class="alert-success-custom">
+        <i class="bi bi-check-circle-fill"></i>
+        {{ session('success') }}
+    </div>
     @endif
 
     @if(session('error'))
-        <div class="alert-danger-custom">
-            <i class="bi bi-exclamation-circle-fill"></i>
-            {{ session('error') }}
-        </div>
+    <div class="alert-danger-custom">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        {{ session('error') }}
+    </div>
     @endif
 
     <div class="emp-info-card">
@@ -61,14 +61,14 @@
             @csrf
 
             @if($errors->any())
-                <div class="alert-danger-custom">
-                    <i class="bi bi-exclamation-circle-fill"></i>
-                    <div>
-                        @foreach($errors->all() as $error)
-                            <div>{{ $error }}</div>
-                        @endforeach
-                    </div>
+            <div class="alert-danger-custom">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <div>
+                    @foreach($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                    @endforeach
                 </div>
+            </div>
             @endif
 
             <div id="task-list">
@@ -79,8 +79,7 @@
                         name="tasks_completed[]"
                         class="form-input task-input {{ $errors->has('tasks_completed.0') ? 'input-error' : '' }}"
                         placeholder="Describe task #1..."
-                        required
-                    />
+                        required />
                 </div>
             </div>
 

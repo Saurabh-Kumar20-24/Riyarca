@@ -4,7 +4,6 @@
 @section('page-title', 'Dashboard')
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
 <link rel="stylesheet" href="{{ asset('assets/css/tableForm.css') }}">
 
 @if(session('success'))
@@ -21,13 +20,12 @@
             @method('PUT')
 
             <div class="row">
+
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Full Name</label>
                         <input type="text" name="name" class="form-control-custom"
-                               value="{{ old('name', $employee->name) }}"
-                               placeholder="Jack Sparrow" required>
-                        @error('name')<div class="error">{{ $message }}</div>@enderror
+                               value="{{ old('name', $employee->name) }}" required>
                     </div>
                 </div>
 
@@ -35,57 +33,45 @@
                     <div class="form-group">
                         <label class="form-label-custom">Phone</label>
                         <input type="text" name="phone" class="form-control-custom"
-                               value="{{ old('phone', $employee->phone) }}"
-                               placeholder="+91 9999999999">
-                        @error('phone')<div class="error">{{ $message }}</div>@enderror
+                               value="{{ old('phone', $employee->phone) }}">
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="form-label-custom">Email Address</label>
+                        <label class="form-label-custom">Email</label>
                         <input type="email" name="email" class="form-control-custom"
-                               value="{{ old('email', $employee->email) }}"
-                               placeholder="jack@example.com" required>
-                        @error('email')<div class="error">{{ $message }}</div>@enderror
+                               value="{{ old('email', $employee->email) }}" required>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">New Password</label>
-                        <input type="password" name="password" class="form-control-custom"
-                               placeholder="Leave blank to keep current password">
-                        <div class="hint">Leave blank to keep the existing password.</div>
-                        @error('password')<div class="error">{{ $message }}</div>@enderror
+                        <input type="password" name="password" class="form-control-custom">
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="form-label-custom">Date of Birth</label>
-                        <input type="text" id="dob" name="dob" class="form-control-custom flatpickr-date"
-                               value="{{ old('dob', $employee->dob) }}"
-                               placeholder="YYYY-MM-DD" autocomplete="off">
-                        @error('dob')<div class="error">{{ $message }}</div>@enderror
+                        <label class="form-label-custom">DOB</label>
+                        <input type="text" name="dob" class="form-control-custom flatpickr-date"
+                               value="{{ old('dob', $employee->dob) }}">
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Joining Date</label>
-                        <input type="text" id="joining_date" name="joining_date" class="form-control-custom flatpickr-date"
-                               value="{{ old('joining_date', $employee->joining_date) }}"
-                               placeholder="YYYY-MM-DD" autocomplete="off">
-                        @error('joining_date')<div class="error">{{ $message }}</div>@enderror
+                        <input type="text" name="joining_date" class="form-control-custom flatpickr-date"
+                               value="{{ old('joining_date', $employee->joining_date) }}">
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-group">
                         <label class="form-label-custom">Role</label>
-                        <select name="role_id" class="form-select-custom" required>
-                            <option value="" disabled>-- Select Role --</option>
+                        <select name="role_id" id="roleSelect" class="form-select-custom" required>
                             @foreach($roles as $role)
                                 <option value="{{ $role->id }}"
                                     {{ old('role_id', $employee->role_id) == $role->id ? 'selected' : '' }}>
@@ -93,12 +79,10 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('role_id')<div class="error">{{ $message }}</div>@enderror
                     </div>
                 </div>
 
-                @if($employee->role_id != 1)
-                <div class="col-md-4">
+                <div class="col-md-4" id="managerField">
                     <div class="form-group">
                         <label class="form-label-custom">Assign Manager</label>
                         <select name="assigned_manager" class="form-select-custom">
@@ -110,10 +94,8 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('assigned_manager')<div class="error">{{ $message }}</div>@enderror
                     </div>
                 </div>
-                @endif
 
                 <div class="col-md-4">
                     <div class="form-group">
@@ -124,6 +106,7 @@
                         </select>
                     </div>
                 </div>
+
             </div>
 
             <div class="mt-4">
@@ -135,12 +118,35 @@
     </div>
 </div>
 
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    flatpickr(".flatpickr-date", {
-        dateFormat: "Y-m-d",
-        allowInput: true
-    });
+flatpickr(".flatpickr-date", {
+    dateFormat: "Y-m-d",
+    allowInput: true
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const roleSelect = document.getElementById('roleSelect');
+    const managerField = document.getElementById('managerField');
+
+    function toggleManagerField() {
+        let selectedRole = roleSelect.value;
+
+        if (selectedRole == 2) {
+            managerField.style.display = 'none';
+        } else {
+            managerField.style.display = 'block';
+        }
+    }
+
+
+    toggleManagerField();
+
+    roleSelect.addEventListener('change', toggleManagerField);
+
+});
 </script>
 
 @endsection

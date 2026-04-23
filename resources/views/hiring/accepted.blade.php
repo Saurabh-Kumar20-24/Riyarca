@@ -19,6 +19,7 @@
 </div>
 
 <div class="table-card">
+    <div class="table-wrapper">
     <table>
         <thead>
             <tr>
@@ -80,7 +81,6 @@
                     </div>
                 </td>
 
-                {{-- Resume --}}
                 <td>
                     @if($seeker->resume_path)
                         <a href="{{ asset('storage/' . $seeker->resume_path) }}" target="_blank" class="resume-btn">
@@ -91,7 +91,6 @@
                     @endif
                 </td>
 
-                {{-- Action --}}
                 <td>
                     <div class="action-menu">
                         <button class="action-toggle" onclick="toggleMenu({{ $seeker->id }})">⋯</button>
@@ -117,6 +116,7 @@
             @endforelse
         </tbody>
     </table>
+</div>
 </div>
 
 <div class="pagination-wrap">{{ $jobSeekers->links() }}</div>

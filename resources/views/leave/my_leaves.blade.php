@@ -12,20 +12,19 @@
     </div>
 </div>
 
-{{-- Success / Error --}}
 @if(session('success'))
-    <div class="alert-success-custom">{{ session('success') }}</div>
+<div class="alert-success-custom">{{ session('success') }}</div>
 @endif
 
 @if(session('error'))
-    <div class="alert-danger-custom">{{ session('error') }}</div>
+<div class="alert-danger-custom">{{ session('error') }}</div>
 @endif
 
 
 <div id="leaveModal" class="modal">
     <div class="modal-content">
 
-        <form method="POST" action="{{ route('store') }}" enctype="multipart/form-data">
+        <form id="leaveForm" enctype="multipart/form-data">
             @csrf
 
             <h3>Apply Leave</h3>
@@ -45,16 +44,18 @@
                     </select>
                 </div>
 
-                
+
                 <div id="halfDayBox" style="display:none;">
-                    <label>Day Type</label>
-                    <select name="half_day_type">
-                        <option value="">Select</option>
-                        <option value="first_half">First Half</option>
-                        <option value="second_half">Second Half</option>
-                    </select>
+                    <div>
+                        <label>Day Type</label>
+                        <select name="half_day_type">
+                            <option value="">Select</option>
+                            <option value="first_half">First Half</option>
+                            <option value="second_half">Second Half</option>
+                        </select>
+                    </div>
                 </div>
-           
+
             </div>
 
             <div class="form-row">
@@ -69,16 +70,11 @@
                 </div>
             </div>
 
-            
 
-            <div class="form-row">
-                <!-- <div>
-                    <label>Contact Phone</label>
-                    <input type="text" name="contact_phone">
-                </div> -->
 
+            <div class="form-row" id="documentBox" style="display:none;">
                 <div>
-                    <label>Document</label>
+                    <label>Document (if more than 5 days)</label>
                     <input type="file" name="document">
                 </div>
             </div>
@@ -94,7 +90,7 @@
             </div>
 
             <div class="modal-actions">
-                <button type="submit" class="btn-search">Submit</button>
+                <button type="submit" id="submitBtn" class="btn-search ">Submit</button>
                 <button type="button" onclick="closeLeaveModal()" class="btn-search">Cancel</button>
             </div>
 
@@ -117,9 +113,9 @@
             </div>
 
             @php
-                $pct = $balance->allocated > 0
-                    ? round(($balance->used / $balance->allocated) * 100)
-                    : 0;
+            $pct = $balance->allocated > 0
+            ? round(($balance->used / $balance->allocated) * 100)
+            : 0;
             @endphp
 
             <div style="margin-top: 8px; background: var(--border); border-radius: 4px; height: 4px;">
@@ -129,7 +125,7 @@
             <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 11px; color: var(--muted);">
                 <span>Used: {{ $balance->used }}</span>
                 @if($balance->pending > 0)
-                    <span style="color: #d97706;">Pending: {{ $balance->pending }}</span>
+                <span style="color: #d97706;">Pending: {{ $balance->pending }}</span>
                 @endif
             </div>
         </div>
@@ -141,41 +137,42 @@
 <div class="leave-section-title">Leave History</div>
 
 <div class="table-card">
-    <table>
-        <thead>
-            <tr>
-                <th>S.No.</th>
-                <th>Type</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Days</th>
-                <th>Status</th>
-              
-                <th>Reviewed By</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($myLeaves as $i => $leave)
-            <tr>
-                <td>{{ $myLeaves->firstItem() + $i }}</td>
-                <td>{{ ucfirst($leave->leave_type) }}</td>
-                <td>{{ $leave->from_date->format('d M Y') }}</td>
-                <td>{{ $leave->to_date->format('d M Y') }}</td>
-                <td>{{ $leave->total_days }}</td>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No.</th>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Days</th>
+                    <th>Status</th>
 
-                <td>
-                    <span class="leave-status-{{ $leave->status }}">
-                        {{ ucfirst($leave->status) }}
-                    </span>
-                </td>
+                    <th>Reviewed By</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($myLeaves as $i => $leave)
+                <tr>
+                    <td>{{ $myLeaves->firstItem() + $i }}</td>
+                    <td>{{ ucfirst($leave->leave_type) }}</td>
+                    <td>{{ $leave->from_date->format('d M Y') }}</td>
+                    <td>{{ $leave->to_date->format('d M Y') }}</td>
+                    <td>{{ $leave->total_days }}</td>
 
-             
+                    <td>
+                        <span class="leave-status-{{ $leave->status }}">
+                            {{ ucfirst($leave->status) }}
+                        </span>
+                    </td>
 
-                <td>{{ $leave->reviewer->name ?? '-' }}</td>
 
-                <td>
-                    @if($leave->status === 'pending')
+
+                    <td>{{ $leave->reviewer->name ?? '-' }}</td>
+
+                    <td>
+                        @if($leave->status === 'pending')
                         <form method="POST" action="{{ route('cancel', $leave->id) }}">
                             @csrf
                             @method('PATCH')
@@ -185,18 +182,19 @@
                                 Cancel
                             </button>
                         </form>
-                    @else
+                        @else
                         <span class="leave-action-done">—</span>
-                    @endif
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="8" class="table-empty">No leave requests found.</td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" class="table-empty">No leave requests found.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div class="pagination-wrap">
@@ -208,19 +206,16 @@
 
 @push('scripts')
 <script>
-        document.querySelector('input[name="from_date"]').addEventListener('change', function() {
+    document.querySelector('input[name="from_date"]').addEventListener('change', function() {
         document.querySelector('input[name="to_date"]').min = this.value;
     });
     const leaveType = document.getElementById('leave_type');
     const halfDayBox = document.getElementById('halfDayBox');
 
     leaveType.addEventListener('change', function() {
-        if (this.value === 'half_day') {
-            halfDayBox.style.display = 'flex';
-        } else {
-            halfDayBox.style.display = 'none';
-        }
+        halfDayBox.style.display = this.value === 'half_day' ? 'flex' : 'none';
     });
+
     function openLeaveModal() {
         document.getElementById('leaveModal').style.display = 'flex';
     }
@@ -233,5 +228,88 @@
         if (e.target === this) closeLeaveModal();
     });
 
+    document.getElementById('leaveForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        let form = this;
+        let formData = new FormData(form);
+        let submitBtn = document.getElementById('submitBtn');
+
+        // Loading state
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Submitting...';
+
+        fetch("{{ route('store') }}", {
+                method: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(async res => {
+                if (!res.ok) {
+                    let text = await res.text();
+                    console.error('Server Response:', text);
+                    throw new Error('Server error');
+                }
+                return res.json();
+            })
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Submit';
+
+                if (data.success) {
+                    alert('Leave applied successfully');
+                    closeLeaveModal();
+                    location.reload(); // or update UI dynamically
+                } else {
+                    alert(data.message || 'Something went wrong');
+                }
+            })
+            .catch(async (err) => {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Submit';
+                console.log('Error:', err);
+                // 👇 Try to read Laravel response
+                const res = err?.response;
+                if (res) {
+                    console.log(await res.text());
+                }
+                alert('Check console (F12) for real error');
+            });
+    });
+
+
+    const fromDateInput = document.querySelector('input[name="from_date"]');
+    const toDateInput = document.querySelector('input[name="to_date"]');
+    const documentBox = document.getElementById('documentBox');
+
+    function calculateDays(from, to) {
+        if (!from || !to) return 0;
+
+        let start = new Date(from);
+        let end = new Date(to);
+
+        let diffTime = end - start;
+        let days = (diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
+
+        return days;
+    }
+
+    function toggleDocumentField() {
+        let from = fromDateInput.value;
+        let to = toDateInput.value;
+
+        let days = calculateDays(from, to);
+
+        if (days > 5) {
+            documentBox.style.display = 'block';
+        } else {
+            documentBox.style.display = 'none';
+        }
+    }
+    fromDateInput.addEventListener('change', toggleDocumentField);
+    toDateInput.addEventListener('change', toggleDocumentField);
 </script>
 @endpush

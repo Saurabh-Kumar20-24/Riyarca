@@ -18,6 +18,7 @@
 </div>
 
 <div class="table-card">
+    <div class="table-wrapper">
     <table>
         <thead>
             <tr>
@@ -32,7 +33,7 @@
         <tbody>
             @forelse($employees as $i => $emp)
             <tr>
-                <td>{{ $i + 1 }}</td>
+                <td>{{ $employees->firstItem() + $i }}</td>
                 <td>{{ $emp->name }}</td>
                 <td>{{ $emp->role->role_name ?? '-' }}</td>
 
@@ -87,7 +88,8 @@
         </tbody>
     </table>
 </div>
-
+</div>
+{{ $employees->links() }}
 <div id="eodModal" class="eod-modal-overlay" onclick="handleOverlayClick(event)">
     <div class="eod-modal-box">
 
